@@ -1,0 +1,49 @@
+<div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
+                
+                <div class="col-lg-6 mb-4">
+                    <div id="rgb-plot"></div>
+                    
+                </div>
+
+                <div class="col-lg-6 mb-4">
+
+                    <div id="heatmap-plot"></div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div id="3d-plot"></div>
+           
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div id="lines-plot"></div>
+                    
+                </div>
+
+            </div> 
+
+            <script>
+    // 1. RGB Plot
+    var rgb_plot_data = {{ anim_rgb_plot_data|safe }};
+    Plotly.newPlot('rgb-plot', rgb_plot_data.data, rgb_plot_data.layout).then(function() {
+        Plotly.addFrames('rgb-plot', rgb_plot_data.frames);
+    });
+
+    // 2. Heatmap Plot
+    var heatmap_plot_data = {{ anim_heatmap_plot_data|safe }}; // Changed variable name
+    Plotly.newPlot('heatmap-plot', heatmap_plot_data.data, heatmap_plot_data.layout).then(function() {
+        Plotly.addFrames('heatmap-plot', heatmap_plot_data.frames);
+    });
+
+    // 3. 3D Plot
+    var three_d_plot_data = {{ anim_3d_plot_data|safe }}; // Changed variable name
+    Plotly.newPlot('3d-plot', three_d_plot_data.data, three_d_plot_data.layout).then(function() {
+        Plotly.addFrames('3d-plot', three_d_plot_data.frames);
+    });
+
+    // 4. Lines Plot
+    var lines_plot_data = {{ anim_lines_plot_data|safe }}; // Changed variable name
+    Plotly.newPlot('lines-plot', lines_plot_data.data, lines_plot_data.layout).then(function() {
+        Plotly.addFrames('lines-plot', lines_plot_data.frames);
+    });
+</script>

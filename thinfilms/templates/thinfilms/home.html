@@ -1,0 +1,306 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<title>{% block title %}Thin Film{% endblock %}</title>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p class="main-title">
+        Thin Film Simulation Using the Transfer-Matrix Method
+    </p>
+    <hr>
+    <div class="card shadow-sm mb-4 mt-4">
+        <div class="card-header fw-bold text-center">Thin Film Layers</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle text-center mb-0 table-striped" id="layersTable">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th style="width:10%;">#</th>
+                            <th style="width:40%;">Material</th>
+                            <th style="width:40%;">nk Data</th>
+                            <th style="width:10%;">Thickness (nm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="layersTableBody">
+                        <tr>
+                            <th>0</th>
+                            <td>Air</td>
+                            <td>n=1</td>
+                            <td>&infin;</td>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td>
+                                <select name="book-1" class="form-select form-select-sm book-select" data-index="1">
+                                    <option value="">--Select Material--</option>
+                                    {% for group in catalog %}
+                                        <optgroup label="{{ group.label }}">
+                                            {% for book in group.books %}
+                                                <option value="{{ book.book }}">{{ book.name }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <select name="page-1" class="form-select form-select-sm page-select" id="page-1">
+                                    <option value="">--Select Material First--</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" name="thickness-1" class="form-control form-control-sm" value="100">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center my-2">
+                <button type="button" id="removeLayerRow" class="btn btn-outline-danger btn-sm me-2">−</button>
+                <button type="button" id="addLayerRow" class="btn btn-outline-success btn-sm">＋</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" name="number_of_layers" id="number_of_layers" value="1">
+    <button type="submit" name="calculate" class="btn btn-primary w-100 mt-3" formtarget="_blank">Submit</button>
+</form>
+
+<!-- jQuery for AJAX -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const tableBody = $("#layersTableBody");
+    const numberInput = $("#number_of_layers");
+    let rowCount = 1;
+
+    function createRow(i) {
+        return `
+        <tr>
+            <th>${i}</th>
+            <td>
+                <select name="book-${i}" class="form-select form-select-sm book-select" data-index="${i}">
+                    <option value="">--Select Material--</option>
+                    {% for group in catalog %}
+                        <optgroup label="{{ group.label }}">
+                            {% for book in group.books %}
+                                <option value="{{ book.book }}">{{ book.name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <select name="page-${i}" class="form-select form-select-sm page-select" id="page-${i}">
+                    <option value="">--Select Material First--</option>
+                </select>
+            </td>
+            <td>
+                <input type="number" name="thickness-${i}" class="form-control form-control-sm" value="100">
+            </td>
+        </tr>`;
+    }
+
+    $("#addLayerRow").click(() => {
+        rowCount++;
+        tableBody.append(createRow(rowCount));
+        numberInput.val(rowCount);
+    });
+
+    $("#removeLayerRow").click(() => {
+        if (rowCount > 1) {
+            tableBody.children().last().remove();
+            rowCount--;
+            numberInput.val(rowCount);
+        }
+    });
+
+    // Handle book → page AJAX update
+    tableBody.on("change", ".book-select", function() {
+        const selectedBook = $(this).val();
+        const index = $(this).data("index");
+        const $pageField = $(`#page-${index}`);
+
+        $.ajax({
+            url: "{% url 'thinfilms:update_pages' %}",
+            method: "GET",
+            data: { 'book': selectedBook },
+            success: function(response) {
+                $pageField.empty();
+                $pageField.append('<option value="">--Select DATA--</option>');
+                $.each(response.pages, function(label, pages) {
+                    const $optgroup = $('<optgroup>').attr('label', label);
+                    $.each(pages, function(i, page) {
+                        $optgroup.append(`<option value="${page.page}">${page.name}</option>`);
+                    });
+                    $pageField.append($optgroup);
+                });
+            },
+            error: function(xhr) {
+                console.error(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    });
+});
+</script>
+
+{% comment %} <section id="starter-section" class="starter-section section">
+    <div class="container">
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p class="main-title">
+                <a href="https://en.wikipedia.org/wiki/Thin_film" target="_blank">
+
+                    Thin Film </a> Simulation Using the 
+                    <a href="https://en.wikipedia.org/wiki/Transfer-matrix_method_(optics)" target="_blank">
+                    Transfer-Matrix Method
+                    </a>
+            </p>
+        
+            <div class="table-wrapper">
+                <table class="table">
+                    <tr>
+                        <th>Number of Layers (Substrate included)</th>
+                        <th>{{ input_form.number_of_layers }}</th>
+                        <th>
+                            <button class="btn btn-primary" name="Create">Create</button>
+                        </th>
+                    </tr>
+                </table>
+            </div>
+                {{ matrix_formset.management_form }}
+            <div class="table-wrapper">
+                <table class="table">
+                    <tr>
+                        <th colspan="4">Layers</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Material</td>
+                        <td>nk Data</td>
+                        <td>Thickness (nm)</td>
+                    </tr>
+                    <tr class="matrix-form">
+                        <td>0</td>
+                        <td>Air</td>
+                        <td>n=1</td>
+                        <td>&infin;</td>
+                    </tr>
+                    {% for form in matrix_formset %}
+                        <tr>
+                            <td style="width:10%;">{% if forloop.last %}
+                                Substrate
+                            {% else %}
+                                {{ forloop.counter }}
+                            {% endif %}</td>
+                            <td style="width:40%;">
+                                <select id="book-{{ forloop.counter0 }}" name="book-{{ forloop.counter0 }}" class=" book-select" data-index="{{ forloop.counter0 }}">
+                                    <option value="">--Select Material--</option>
+                                    {% for group in catalog %}
+                                        <optgroup label="{{ group.label }}">
+                                            {% for book in group.books %}
+                                                <option value="{{ book.book }}" >
+                                                    {{ book.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td style="width:40%;">
+                                <select id="page-{{ forloop.counter0 }}" name="page-{{ forloop.counter0 }}" class=" page-select">
+                                    <option value="">--Select Material First--</option>
+                                    {% for book in catalog.0.books %}
+                                            {% for page in book.content %}
+                                                {% if 'PAGE' in page %}
+                                                    <option value="{{ page.PAGE }}" >{{ page.name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td style="width:10%;">
+                                {{ form.thickness }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <!-- Include jQuery -->
+                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+                    <script>
+                        $(document).ready(function() {
+                            $('.book-select').change(function() {
+                                var selectedBook = $(this).val();
+                                var index = $(this).data('index');
+                                $.ajax({
+                                    url: "{% url 'thinfilms:update_pages' %}",
+                                    method: "GET",
+                                    data: {
+                                        'book': selectedBook
+                                    },
+                                    success: function(response) {
+                                        var $pageField = $('#page-' + index);
+                                        $pageField.empty();
+                                        $pageField.append('<option value="">--Select DATA--</option>');
+                                        $.each(response.pages, function(label, pages) {
+                                            var $optgroup = $('<optgroup>').attr('label', label);
+                                            $.each(pages, function(i, page) {
+                                                $optgroup.append('<option value="' + page.page + '">' + page.name + '</option>');
+                                            });
+                                            $pageField.append($optgroup);
+                                        });
+                                    },
+                                    error: function(xhr, errmsg, err) {
+                                        console.error(xhr.status + ": " + xhr.responseText);
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+
+                </table>
+                <button type="submit" name="calculate" class="btn btn-primary w-100" formtarget="_blank">Submit</button>
+            </div>
+        </form>
+        
+    </div>
+</section> {% endcomment %}
+
+
+<style>
+    .table-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    table {
+        border-collapse: collapse;
+        
+        background-color: #ffffff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    table select {
+        width: 100%;
+        padding: 8px;
+        margin: 4px 0;
+        box-sizing: border-box; /* Ensures padding doesn't affect the width */
+    }
+    th, td {
+        padding: 5px;
+        border: 1px solid #b9b9b9;
+        text-align: center;
+    }
+    th {
+        background-color: #cecece;
+        color: rgb(0, 0, 0);
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+
+{% endblock content %}

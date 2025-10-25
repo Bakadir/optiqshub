@@ -1,0 +1,27 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+<title>{% block title %}Fabry–Pérot Interferometer{% endblock %}</title>
+
+<section id="starter-section" class="starter-section section">
+
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ matrix_formset.management_form }}
+            <p class="main-title">
+                <a href="https://en.wikipedia.org/wiki/Fabry%E2%80%93P%C3%A9rot_interferometer" target="_blank">
+                    Fabry–Pérot Interferometer
+                    </a>
+
+                
+             </p>
+
+            </form>
+    </div>
+</section>
+
+
+{% endblock %}

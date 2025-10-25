@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Method for Thin Films</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
+        .content {
+            margin-top: 20px;
+        }
+        .nav-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Matrix Method for Thin Films</h1>
+        <div class="content">
+            <p>The matrix method is a powerful technique used to analyze the optical properties of thin film assemblies. This method involves calculating the reflectance and transmittance of light as it passes through multiple layers, each characterized by its own refractive index and thickness.</p>
+            
+            <h2>Basic Concept</h2>
+            <p>For a single thin film, we use a characteristic matrix to relate the electric and magnetic fields at the boundaries of the film. This matrix is expressed as:</p>
+            <p>
+                \[
+                \begin{pmatrix}
+                    E_b \\
+                    H_b
+                \end{pmatrix}
+                =
+                \begin{pmatrix}
+                    \cos \delta & i \frac{\sin \delta}{\eta} \\
+                    i \eta \sin \delta & \cos \delta
+                \end{pmatrix}
+                \begin{pmatrix}
+                    E_c \\
+                    H_c
+                \end{pmatrix}
+                \]
+            </p>
+            <p>Here, \(\delta\) is the phase thickness of the film, given by:</p>
+            <p>
+                \[
+                \delta = \frac{2\pi n d \cos \theta}{\lambda}
+                \]
+            </p>
+            <p>where \(n\) is the refractive index, \(d\) is the thickness, \(\theta\) is the angle of incidence, and \(\lambda\) is the wavelength of light.</p>
+            
+            <h2>Multiple Layers</h2>
+            <p>For an assembly of multiple thin films, the overall characteristic matrix is the product of the individual matrices of each layer. The combined matrix is given by:</p>
+            <p>
+                \[
+                \begin{pmatrix}
+                    B \\
+                    C
+                \end{pmatrix}
+                =
+                \prod_{r=1}^{q}
+                \begin{pmatrix}
+                    \cos \delta_r & i \frac{\sin \delta_r}{\eta_r} \\
+                    i \eta_r \sin \delta_r & \cos \delta_r
+                \end{pmatrix}
+                \begin{pmatrix}
+                    1 \\
+                    \eta_m
+                \end{pmatrix}
+                \]
+            </p>
+            <p>where \(\eta_r\) and \(\eta_m\) are the admittances of the individual layers and the substrate, respectively.</p>
+            
+            <h2>Reflection and Transmission</h2>
+            <p>The reflection coefficient \(\rho\) and the reflectance \(R\) are computed as follows:</p>
+            <p>
+                \[
+                \rho = \frac{\eta_0 - Y}{\eta_0 + Y}
+                \]
+            </p>
+            <p>
+                \[
+                R = \left|\frac{\eta_0 - Y}{\eta_0 + Y}\right|^2
+                \]
+            </p>
+            <p>where \(Y\) is the characteristic admittance of the assembly.</p>
+
+            <h2>Calculation Details</h2>
+            <p>The calculation involves the following steps:</p>
+            <ol>
+                <li>Initialize the characteristic matrix \(M\) as the identity matrix.</li>
+                <li>For each layer, compute the phase thickness \(\delta_r\) and the admittance \(\eta_r\).</li>
+                <li>Construct the matrix for each layer and update the overall matrix \(M\) by multiplying it with the layer matrix.</li>
+                <li>After processing all layers, determine the reflection coefficient \(r\) and the reflectance \(R\).</li>
+            </ol>
+
+            <p>The phase thickness \(\delta_r\) for a layer is given by:</p>
+            <p>
+                \[
+                \delta_r = \frac{2\pi d_r}{\lambda} \sqrt{(n_r^2 - k_r^2) - n_0^2 \sin^2 \theta_0 - 2i n_r k_r}
+                \]
+            </p>
+            <p>where \(d_r\) is the thickness of the layer, \(n_r\) and \(k_r\) are the real and imaginary parts of the refractive index, and \(\theta_0\) is the angle of incidence.</p>
+
+            <p>The admittance \(\eta_r\) for s-polarization (TE) and p-polarization (TM) are calculated as:</p>
+            <p>
+                \[
+                \eta_r = Y \frac{n_r \cos \theta_r}{\sqrt{n_r^2 - k_r^2 - n_0^2 \sin^2 \theta_0 - 2i n_r k_r}}
+                \]
+                for s-polarization,
+            </p>
+            <p>
+                \[
+                \eta_r = Y \frac{(n_r - i k_r)^2}{\sqrt{n_r^2 - k_r^2 - n_0^2 \sin^2 \theta_0 - 2i n_r k_r}}
+                \]
+                for p-polarization.
+            </p>
+        </div>
+
+        <div class="row text-center" style="width: 100%;">
+            <div class="col-lg-6">
+                <a href="{% url 'thinfilms:home' %}" class="btn btn-primary btn-block nav-button" target="_blank">Use Refractiveindex.info</a>
+            </div>
+            <div class="col-lg-6">
+                <a href="{% url 'thinfilms:manage_layers' %}" class="btn btn-primary btn-block nav-button" target="_blank">Import Data</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+

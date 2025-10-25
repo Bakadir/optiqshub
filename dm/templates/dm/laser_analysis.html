@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Analyse laser – OptiqsHub</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {font-family: Inter, sans-serif; margin:2em; background:#f9fafc;}
+    h1 {text-align:center;}
+    .plot {max-width:900px; margin:2em auto;}
+    select {display:block; margin:0 auto;}
+  </style>
+</head>
+<body>
+  <h1>Mesure hétérodyne – {{ dataset }}</h1>
+
+  <!-- Jeu de données -->
+  <form method="get" style="text-align:center">
+    <label>Jeu de traces :</label>
+    <select name="set" onchange="this.form.submit()">
+      <option value="AA" {% if dataset == "AA" %}selected{% endif %}>AA</option>
+<option value="B" {% if dataset == "B" %}selected{% endif %}>B</option>
+<option value="C" {% if dataset == "C" %}selected{% endif %}>C</option>
+
+    </select>
+  </form>
+
+  <div id="g1_plot" class="plot"></div>
+  <div id="spec_plot" class="plot"></div>
+  <div id="g2_plot" class="plot"></div>
+  <div id="g20_plot" class="plot"></div>
+
+  <script>
+    const m={{m_vals|safe}}, g1a={{g1_abs|safe}}, g1r={{g1_real|safe}},
+          g2={{g2_vals|safe}}, g20={{g2_0_vals|safe}},
+          spec={{spectrum|safe}}, f={{freq|safe}}, r={{roundtrips|safe}};
+
+    Plotly.newPlot('g1_plot',[
+      {x:m,y:g1a,mode:'lines+markers',name:'|g¹|',line:{color:'blue'}},
+      {x:m,y:g1r,mode:'lines+markers',name:'Re[g¹]',line:{color:'red'}}
+    ],{title:'g¹(τ)',xaxis:{title:'Δ roundtrip'},yaxis:{title:'Amplitude'}});
+
+    Plotly.newPlot('spec_plot',[{z:spec,x:f,y:r,type:'heatmap',colorscale:'Viridis'}],
+      {title:'Spectre optique',xaxis:{title:'Fréquence (GHz)'},yaxis:{title:'Roundtrip'}});
+
+    Plotly.newPlot('g2_plot',[{x:m,y:g2,mode:'lines+markers',name:'g²(τ)',line:{color:'green'}}],
+      {title:'g²(τ)',xaxis:{title:'Δ roundtrip'},yaxis:{title:'g²'}});
+
+    Plotly.newPlot('g20_plot',[
+      {x:r,y:g20,mode:'lines+markers',name:'g²(0)',line:{color:'orange'}},
+      {x:r,y:Array(r.length).fill(1),mode:'lines',name:'Laser cohérent',line:{dash:'dash',color:'black'}},
+      {x:r,y:Array(r.length).fill(2),mode:'lines',name:'État thermique',line:{dash:'dot',color:'red'}}
+    ],{title:'Évolution de g²(0)',xaxis:{title:'Roundtrip'},yaxis:{title:'g²(0)'}});
+  </script>
+</body>
+</html>

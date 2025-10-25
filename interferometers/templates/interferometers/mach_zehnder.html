@@ -1,0 +1,29 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+
+<title>{% block title %}Mach–Zehnder Interferometer{% endblock %}</title>
+
+
+<section id="starter-section" class="starter-section section">
+
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ matrix_formset.management_form }}
+            <p class="main-title">
+                <a href="https://en.wikipedia.org/wiki/Mach%E2%80%93Zehnder_interferometer" target="_blank">
+                    Mach–Zehnder Interferometer
+                    </a>
+
+                
+             </p>
+
+            </form>
+    </div>
+</section>
+
+
+{% endblock %}

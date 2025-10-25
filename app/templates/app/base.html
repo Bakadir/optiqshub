@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYLXW9FTCX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-MYLXW9FTCX');
+    </script>
+        
+
+    {% load static %}
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OptiqsHub{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- Load Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Load Font Awesome for icons (if needed) and general style icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJd/rG4c8A7X5y6p/B5Y9cE5M7d3D7y5r7R8Q9d+K9P2X/J2h/p0n/L5t8Zg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+
+    <link rel="icon" href="{% static 'app/images/logosite.png' %}" type="image">
+
+    <!-- New (explicit version) -->
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+
+
+
+    <!-- Custom styles for the full-height, fixed sidebar -->
+    <style>
+        body {
+            background-color: #f7f9fc;
+            min-height: 100vh;
+        }
+
+        /* Custom gradient background: White at top to light gray at bottom */
+        .sidebar-gradient-bg {
+            background: linear-gradient(to bottom, #ffffff 0%, #f1f3f5 100%);
+        }
+
+        /* Custom header background for contrast */
+        .sidebar-logo-header {
+            background-color: #f8f9fa; /* Very light background for logo area */
+            border-bottom: 1px solid #ced4da;
+        }
+
+        /* Full height and fixed width for desktop sidebar (>= 768px) */
+        #sidebar-wrapper {
+            height: 100vh;
+             /* Enable vertical scrolling if content overflows */
+            width: 17rem; /* Fixed width for desktop */
+            color: #343a40; /* Dark text for contrast */
+            display: flex; /* Setup for flex to push content to top/bottom */
+            flex-direction: column; 
+            padding-bottom: 0 !important;
+            
+
+        }
+        
+        /* Make the desktop sidebar sticky/fixed */
+        @media (min-width: 768px) {
+            #sidebar-wrapper {
+                position: sticky;
+                top: 0;
+                z-index: 1020;
+            }
+        }
+        
+        /* Make the mobile offcanvas full width on screens smaller than md (768px) */
+        @media (max-width: 767.98px) {
+            #offcanvasSidebar {
+                width: 100vw !important; /* Full viewport width on mobile */
+            }
+        }
+
+
+        /* Style for sidebar links/buttons on light background */
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #495057; /* Darker text for white/light gray background */
+            text-decoration: none;
+            transition: all 0.3s;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .sidebar-link:hover {
+            background-color: #e9ecef; /* Very light gray hover */
+            color: #212529; /* Dark text */
+        }
+
+        /* Styling for the nested dropdown links */
+        .sidebar-dropdown-item a {
+            padding-left: 2rem !important; /* Indent nested links */
+            background-color: #f8f9fa !important; /* Slightly whiter background for nested menu */
+        }
+
+        /* Style for the fixed bottom section of the sidebar */
+        .sidebar-bottom {
+            
+            margin-top: auto; /* Pushes this block to the bottom of the flex container */
+            padding: 1rem;
+            border-top: 1px solid #ced4da; /* Light separator */
+        }
+        
+    </style>
+    
+</head>
+
+<body>
+    
+    <!-- Main Wrapper: d-flex handles the layout (Sidebar on left, content on right) -->
+    <div class="d-flex" id="wrapper">
+        
+        <!-- 
+            ==================================================
+            1. PERSISTENT SIDEBAR (Desktop) 
+            ==================================================
+            Uses the custom sidebar-gradient-bg class.
+        -->
+        <aside class=" d-none d-md-block border flex-shrink-0 sidebar-gradient-bg" id="sidebar-wrapper" >
+            
+            <!-- Sidebar Header (Logo) -->
+            <div class="sidebar-heading text-dark sidebar-logo-header d-flex align-items-center justify-content-between" style="height: 60px;padding: 0.75rem 1rem;">
+                <a href="{% url 'app:home' %}" class="text-dark text-decoration-none d-flex align-items-center p-3" >
+                    <h1 class="h5 m-0 sitename d-flex align-items-center">
+                        <img src="{% static 'app/images/logosite.png' %}" alt="OptiqsHub Logo" class="me-2" style="height: 32px; width: auto;">
+                        OptiqsHub
+                    </h1>
+                </a>
+            </div>
+
+            <!-- Sidebar Navigation Menu (Content Pushed to Top) -->
+            <nav class="list-group list-group-flush p-3 flex-grow-1" style="overflow-y : auto; height: calc(100vh - 180px);">
+                
+                <!-- Menu Item: Fourier Optics (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#menuFourier" role="button" aria-expanded="false" aria-controls="menuFourier">
+                        <span>Fourier Optics</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="menuFourier">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'fourieroptics:home' %}" class="sidebar-link">Diffraction Patterns with the Angular Spectrum Method</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Menu Item: Thin Film (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#menuThinFilm" role="button" aria-expanded="false" aria-controls="menuThinFilm">
+                        <span>Thin Film</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="menuThinFilm">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'thinfilms:home' %}" class="sidebar-link">The Transfer-Matrix Method</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Menu Item: Pulse Propagation (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#menuPulseProp" role="button" aria-expanded="false" aria-controls="menuPulseProp">
+                        <span>Pulse Propagation</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="menuPulseProp">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'NLSE:home' %}" class="sidebar-link">Through an optical fiber</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Menu Item: Polarization (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#menuPolarization" role="button" aria-expanded="false" aria-controls="menuPolarization">
+                        <span>Polarization</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="menuPolarization">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:jonescalculus' %}" class="sidebar-link">Jones Calculus</a></li>
+                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:muellercalculus' %}" class="sidebar-link">Mueller Calculus</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Menu Item: Interferometers (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#menuInterferometers" role="button" aria-expanded="false" aria-controls="menuInterferometers">
+                        <span>Interferometers</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="menuInterferometers">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:michelson_interferometer' %}" class="sidebar-link">Michelson</a></li>
+                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:fabry_perot_interferometer' %}" class="sidebar-link">Fabry Perot</a></li>
+                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:mach_zehnder_interferometer' %}" class="sidebar-link">Mach Zender</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Github and Email are moved to .sidebar-bottom -->
+            </nav>
+
+            <!-- Github and Email links fixed at the bottom -->
+            <div class="sidebar-bottom" style="height: 120px;">
+                <a href="https://github.com/Bakadir/OptiqsHub" target="_blank" class="sidebar-link">
+                    <i class="fab fa-github me-2"></i>Github
+                </a>
+                <a href="mailto:optiqshub@gmail.com" class="sidebar-link">
+                    <i class="fas fa-envelope me-2"></i>optiqshub@gmail.com
+                </a>
+            </div>
+        </aside>
+
+        <!-- 
+            ==================================================
+            2. MAIN CONTENT AREA (Includes Mobile Header)
+            ==================================================
+        -->
+        <div id="page-content-wrapper" class="flex-grow-1">
+            
+            <!-- 
+                ==================================================
+                2a. MOBILE TOP NAVBAR (Hidden on desktop)
+                ==================================================
+                Now uses bg-white for consistency with the new color scheme.
+            -->
+            <header class="navbar navbar-expand-md navbar-light bg-white shadow-sm sticky-top d-md-none">
+                <div class="container-fluid">
+                    <!-- Mobile Logo -->
+                    <a href="{% url 'app:home' %}" class="navbar-brand d-flex align-items-center">
+                         <h1 class="h5 m-0 text-dark sitename d-flex align-items-center">
+                            <img src="{% static 'app/images/logosite.png' %}" alt="OptiqsHub Logo" class="me-2" style="height: 32px; width: auto;">
+                            OptiqsHub
+                        </h1>
+                    </a>
+
+                    <!-- Open Sidebar Button (Offcanvas Toggler) -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 
+                ==================================================
+                2b. MAIN CONTENT BLOCK
+                ==================================================
+            -->
+            <main class="container-fluid py-4 px-3 px-md-5">
+                {% block content %}
+                  
+                {% endblock %}
+            </main>
+        </div>
+
+    </div>
+
+    <!-- 
+        ==================================================
+        3. MOBILE OFF-CANVAS MENU (The Drawer)
+        ==================================================
+        Uses the custom sidebar-gradient-bg class.
+    -->
+    <div class="offcanvas offcanvas-start sidebar-gradient-bg text-dark" tabindex="-1" id="offcanvasSidebar" aria-labelledby="offcanvasSidebarLabel">
+        
+        <!-- Offcanvas Header (Logo & Close Button) -->
+        <div class="offcanvas-header sidebar-logo-header text-dark" style=" padding: 0.75rem 1rem;">
+            <h5 class="offcanvas-title" id="offcanvasSidebarLabel">
+                 <a href="{% url 'app:home' %}" class="text-dark text-decoration-none d-flex align-items-center">
+                    <h1 class="h5 m-0 sitename d-flex align-items-center">
+                        <img src="{% static 'app/images/logosite.png' %}" alt="OptiqsHub Logo" class="me-2" style="height: 32px; width: auto;">
+                        OptiqsHub
+                    </h1>
+                </a>
+            </h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <!-- Offcanvas Body (Navigation Menu) -->
+        <div class="offcanvas-body d-flex flex-column p-0">
+            <!-- Navigation Menu is copied from the desktop sidebar structure for consistency -->
+            <nav class="list-group list-group-flush p-3 flex-grow-1">
+                
+                <!-- Menu Item: Fourier Optics (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#mobileMenuFourier" role="button" aria-expanded="false" aria-controls="mobileMenuFourier">
+                        <span>Fourier Optics</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="mobileMenuFourier">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'fourieroptics:home' %}" class="sidebar-link">Diffraction Patterns with the Angular Spectrum Method</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Menu Item: Thin Film (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#mobileMenuThinFilm" role="button" aria-expanded="false" aria-controls="mobileMenuThinFilm">
+                        <span>Thin Film</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="mobileMenuThinFilm">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'thinfilms:home' %}" class="sidebar-link">The Transfer-Matrix Method</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Menu Item: Pulse Propagation (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#mobileMenuPulseProp" role="button" aria-expanded="false" aria-controls="mobileMenuPulseProp">
+                        <span>Pulse Propagation</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="mobileMenuPulseProp">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'NLSE:home' %}" class="sidebar-link">Through an optical fiber</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Menu Item: Polarization (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#mobileMenuPolarization" role="button" aria-expanded="false" aria-controls="mobileMenuPolarization">
+                        <span>Polarization</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="mobileMenuPolarization">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:jonescalculus' %}" class="sidebar-link">Jones Calculus</a></li>
+                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:muellercalculus' %}" class="sidebar-link">Mueller Calculus</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Menu Item: Interferometers (Collapsible) -->
+                <div class="mb-1">
+                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
+                       data-bs-toggle="collapse" href="#mobileMenuInterferometers" role="button" aria-expanded="false" aria-controls="mobileMenuInterferometers">
+                        <span>Interferometers</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="mobileMenuInterferometers">
+                        <ul class="list-unstyled">
+                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:michelson_interferometer' %}" class="sidebar-link">Michelson</a></li>
+                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:fabry_perot_interferometer' %}" class="sidebar-link">Fabry Perot</a></li>
+                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:mach_zehnder_interferometer' %}" class="sidebar-link">Mach Zender</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Github and Email links fixed at the bottom for mobile -->
+            <div class="sidebar-bottom">
+                <a href="https://github.com/Bakadir/OptiqsHub" target="_blank" class="sidebar-link">
+                    <i class="fab fa-github me-2"></i>Github
+                </a>
+                <a href="mailto:optiqshub@gmail.com" class="sidebar-link">
+                    <i class="fas fa-envelope me-2"></i>optiqshub@gmail.com
+                </a>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <!-- Load Bootstrap 5.3 JavaScript Bundle (Includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+    <style>
+        #plots {
+            background-color: rgb(208, 208, 208); 
+            color: rgb(0, 0, 0); 
+            height: 50px;
+            width: 100%;
+            margin-bottom: 10px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #plots:hover {
+            background-color: rgb(79, 79, 79); 
+            color: white; 
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            text-decoration: none;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+            background-color: #dddcdc;
+    
+        }
+    
+        .table-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 12px; /* Make the table smaller */
+            width: auto; /* Allow table to size itself based on content */
+            margin: 0 auto; /* Center the table */
+        }
+        
+        th, td {
+            padding: 5px; /* Smaller padding for compact look */
+            border: 1px solid #b9b9b9;
+            text-align: center;
+            vertical-align: middle; /* Align content in the middle */
+        }
+        
+        th {
+            background-color: #cecece;
+            color: rgb(0, 0, 0);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .form-container {
+            display: inline-block;
+            width: 100%; /* Allow forms to scale with column width */
+            text-align: center; /* Center align the form fields */
+        }
+        
+        input, select, textarea {
+            font-size: 12px; /* Smaller input font size */
+            padding: 3px; /* Reduce padding for inputs */
+            width: auto; /* Match content width */
+            text-align: center; /* Center the form text */
+            box-sizing: border-box; /* Ensure inputs respect padding and width */
+        }
+        .main-title{
+            font-size: 22px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            text-decoration: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+
+</body>
+</html>

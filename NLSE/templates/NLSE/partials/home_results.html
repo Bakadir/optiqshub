@@ -1,0 +1,33 @@
+<div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
+
+    <div class="col-lg-6 mb-4">
+        <div id="lines-plot"></div>
+        <script>
+            var lines_plot_data = {{ anim_lines_plot_data|safe }};
+            Plotly.newPlot('lines-plot', lines_plot_data.data, lines_plot_data.layout).then(function() {
+                Plotly.addFrames('lines-plot', lines_plot_data.frames);
+            });
+        </script>
+    </div>   
+
+    <div class="col-lg-6 mb-4">
+        <div id="speclines-plot"></div>
+        <script>
+            var speclines_plot_data = {{ anim_lines_plot_data_spectrum|safe }};
+            Plotly.newPlot('speclines-plot', speclines_plot_data.data, speclines_plot_data.layout).then(function() {
+                Plotly.addFrames('speclines-plot', speclines_plot_data.frames);
+            });
+        </script>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div id="chirplines-plot"></div>
+        <script>
+            var chirplines_plot_data = {{ anim_lines_plot_data_chirp|safe }};
+            Plotly.newPlot('chirplines-plot', chirplines_plot_data.data, chirplines_plot_data.layout).then(function() {
+                Plotly.addFrames('chirplines-plot', chirplines_plot_data.frames);
+            });
+        </script>
+    </div>
+
+</div>

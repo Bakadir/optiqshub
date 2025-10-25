@@ -1,0 +1,996 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+
+{% load static %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+        <script>
+            hljs.initHighlightingOnLoad();
+        </script>
+
+<div class="container-fluid p-5" >
+    
+    
+        <h1 align="center">Python Code</h1>
+        
+        <br>
+        <div class="accordion" id="accordionExample">
+            <h2>Imports</h2>
+            <div class="card">
+                <div class="card-header" id="headingImports">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseImports" aria-expanded="true" aria-controls="collapseImports">
+                            Imports
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseImports" class="collapse" aria-labelledby="headingImports">
+
+
+                    <div class="card-body">
+                        <pre><code class="python">
+                        import numpy as np
+                        # for 2D animation :
+                        import matplotlib
+                        import matplotlib.pyplot as plt
+                        from matplotlib.animation import PillowWriter
+                        # for 3D Poincare Sphere :
+                        import plotly.graph_objects as go
+                        from plotly.offline import plot
+                        </code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <br>
+    <div class="accordion" id="accordionExample">
+        <h2>Fresnel Calculus</h2>
+        <div class="card">
+            <div class="card-header" id="headingSeven">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseSeven" aria-expanded="true" aria-controls="collapseSeven">
+                        Transmittance
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseSeven" class="collapse" aria-labelledby="headingSeven">
+                <div class="card-body">
+                    <pre><code class="python">
+                        """
+                        Args:
+                            m:       complex index of refraction of medium 
+                            theta_i: incidence angle from normal in radians
+                            n_i:     real refractive index of incident medium
+                        """
+                        def t_par(m, theta_i, n_i):
+                            """
+                            assuming that the electric field of the incident light is polarized parallel (p) to the plane of incidence.
+
+                            Returns:
+                                transmitted fraction of parallel field
+                            """
+                            m2 = (m / n_i)**2
+                            c = np.cos(theta_i)
+                            s = np.sin(theta_i)
+                            d = np.sqrt(m2 - s * s, dtype=complex)  # = m*cos(theta_t)
+                            if m.imag == 0: 
+                                d = np.conjugate(d)
+                            m2 = (m / n_i)**2
+                            tp = 2 * c * (m / n_i) / (m2 * c + d)
+                            return np.real_if_close(tp)
+
+                        def t_per(m, theta_i, n_i):
+                            """
+                            assuming that the electric field of the incident light is polarized perpendicular (s) to the plane of incidence.
+
+                            Returns:
+                                transmitted fraction of perpendicular field
+                            """
+                            m2 = (m / n_i)**2
+                            c = np.cos(theta_i)
+                            s = np.sin(theta_i)
+                            d = np.sqrt(m2 - s * s, dtype=complex)  # = m*cos(theta_t)
+                            if m.imag == 0: 
+                                d = np.conjugate(d)
+                        
+                            ts = 2 * d / (m / n_i) / (c + d)
+                            return np.real_if_close(ts)
+
+                        def T_par(m, theta_i, n_i):
+                            """
+                            assuming that the electric field of the incident light is polarized parallel (p) to the plane of incidence.
+
+                            Returns:
+                                transmitted fraction of parallel-polarized irradiance
+                            """
+                            m2 = (m / n_i)**2
+                            c = np.cos(theta_i)
+                            s = np.sin(theta_i)
+                            d = np.sqrt(m2 - s * s, dtype=complex)  # = m*cos(theta_t)
+                            if m.imag == 0: 
+                                d = np.conjugate(d)
+                            tp = 2 * c * (m / n_i) / ((m / n_i)**2 * c + d)
+                            return np.abs(d / c * np.abs(tp)**2)
+
+                        def T_per(m, theta_i, n_i):
+                            """
+                            assuming that the electric field of the incident light is polarized perpendicular (s) to the plane of incidence.
+                            Returns:
+                                transmitted fraction of perpendicular-polarized irradiance
+                            """
+                            m2 = (m / n_i)**2
+                            c = np.cos(theta_i)
+                            s = np.sin(theta_i)
+                            d = np.sqrt(m2 - s * s, dtype=complex) 
+                            if m.imag == 0: 
+                                d = np.conjugate(d)
+                            ts = 2 * c / (c + d)
+                            return np.abs(d / c * abs(ts)**2)
+                            
+                        def T_unpolarized(m, theta_i, n_i):
+                            """
+                            assuming that the incident light is unpolarized
+
+                            Returns:
+                                fraction of unpolarized irradiance transmitted
+                            """
+                            return (T_par(m, theta_i, n_i) + T_per(m, theta_i, n_i)) / 2
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reflectance -->
+        <div class="card">
+            <div class="card-header" id="headingEight">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseEight" aria-expanded="true" aria-controls="collapseEight">
+                        Reflectance
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseEight" class="collapse" aria-labelledby="headingEight">
+                <div class="card-body">
+                                        <pre><code class="python">
+                    """
+                    Args:
+                            m:       complex index of refraction of medium 
+                            theta_i: incidence angle from normal in radians
+                            n_i:     real refractive index of incident medium
+                    """
+                    def r_par(m, theta_i, n_i):
+                        """
+                        The incident field is assumed to be polarized parallel (p) to the plane of incidence
+                        Returns:
+                            reflected fraction of parallel field 
+                        """
+                        m2 = (m / n_i)**2
+                        c = np.cos(theta_i)
+                        s = np.sin(theta_i)
+                        d = np.sqrt(m2 - s * s, dtype=complex)
+                        m2 = (m / n_i)**2
+                        rp = (m2 * c - d) / (m2 * c + d)
+                        return np.real_if_close(rp)
+
+                    def r_per(m, theta_i, n_i):
+                        """
+                        The incident field is assumed to be polarized perpendicular (s, or senkrecht) to the plane of incidence
+                        Returns:
+                            reflected fraction of perpendicular field
+                        """
+                        m2 = (m / n_i)**2
+                        c = np.cos(theta_i)
+                        s = np.sin(theta_i)
+                        d = np.sqrt(m2 - s * s, dtype=complex)
+                        rs = (c - d) / (c + d)
+                        return np.real_if_close(rs)
+
+                    def R_par(m, theta_i, n_i):
+                        """
+                        assuming that the electric field of the incident light is polarized parallel (p) to the plane of incidence.
+                        Returns:
+                            reflected fraction of parallel-polarized irradiance
+                        """
+                        return np.abs(r_par(m, theta_i, n_i))**2
+
+                    def R_per(m, theta_i, n_i):
+                        """
+                        The incident light is assumed to be polarized perpendicular (s) to the plane of incidence.
+                        Returns:
+                            reflected fraction of perpendicular-polarized irradiance
+                        """
+                        return np.abs(r_per(m, theta_i, n_i))**2
+                        
+                    def R_unpolarized(m, theta_i, n_i):
+                        """
+                        assuming that the incident light is unpolarized
+                        Returns:
+                            fraction of unpolarized irradiance reflected
+                        """
+                        return (R_par(m, theta_i, n_i) + R_per(m, theta_i, n_i)) / 2
+
+                   </code> </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>    
+    <div class="accordion" id="accordionExample">
+        <h2>Jones Calculus</h2>
+        <!-- Jones Vector -->
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Jones Vector
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne">
+                <div class="card-body">
+<pre><code class="python">
+""" 
+Parameters: 
+vector_type: str - Type of polarization ('Linear Polarization', 'Left Circular Polarization', 'Right Circular Polarization', 'Elliptical Polarization')
+angle: float - Angle in radians for linear polarization
+azimuth: float - Azimuth angle in radians for elliptical polarization
+elliptic_angle: float - Elliptic angle in radians for elliptical polarization
+"""
+def jones_linear_polarization(angle):
+    """
+    Returns the Jones vector for linear polarization.
+    """
+    return np.array([np.cos(angle), np.sin(angle)])
+
+def jones_left_circular_polarization():
+    """
+    Returns the Jones vector for left circular polarization.
+    """
+    return 1 / np.sqrt(2) * np.array([1, -1j])
+
+def jones_right_circular_polarization():
+    """
+    Returns the Jones vector for right circular polarization.
+    """
+    return 1 / np.sqrt(2) * np.array([1, 1j])
+
+def jones_elliptical_polarization(azimuth, elliptic_angle):
+    """
+    Returns the Jones vector for elliptical polarization.
+    """
+    A = np.cos(elliptic_angle)
+    B = np.sin(elliptic_angle)
+    C = np.cos(azimuth)
+    D = np.sin(azimuth)
+    J = np.array([C * A - D * B * 1j, D * A + C * B * 1j])
+    return J * np.exp(1j * (- np.angle(J[0])))
+</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jones Matrix -->
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Jones Matrix
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo">
+                <div class="card-body">
+                    <pre> <code class="python">
+"""
+Parameters:
+matrix_type: str - Type of optical element ('Linear Polarizer', 'Retarder', 'Attenuator', 'Mirror', 'Rotation', 'Quarter Wave Plate', 'Half Wave Plate', 'Fresnel Reflection', 'Fresnel Transmission')
+angle: float - Angle in radians for linear polarizer
+fast_axis_angle: float - Fast axis angle in radians for retarders or wave plates
+retardance: float - Retardance in radians for retarder or wave plate
+optical_density: float - Optical density for attenuators
+m: complex index of refraction of medium 
+theta_i: incidence angle from normal in radians
+n_i:     real refractive index of incident medium
+"""
+def jones_linear_polarizer(angle):
+    """
+    Returns the Jones matrix for a linear polarizer at a given angle.
+    """
+    return np.array([[np.cos(angle)**2, np.sin(angle) * np.cos(angle)],
+                     [np.sin(angle) * np.cos(angle), np.sin(angle)**2]])
+
+def jones_retarder(fast_axis_angle, retardance):
+    """
+    Returns the Jones matrix for a retarder.
+    """
+    P = np.exp(+retardance / 2 * 1j)
+    Q = np.exp(-retardance / 2 * 1j)
+    D = np.sin(retardance / 2) * 2j
+    C = np.cos(fast_axis_angle)
+    S = np.sin(fast_axis_angle)
+    return np.array([[C * C * P + S * S * Q, C * S * D],
+                     [C * S * D, C * C * Q + S * S * P]])
+
+def jones_attenuator(optical_density):
+    """
+    Returns the Jones matrix for an attenuator.
+    """
+    f = np.sqrt(optical_density)
+    return np.array([[f, 0], [0, f]])
+
+def jones_mirror():
+    """
+    Returns the Jones matrix for a mirror.
+    """
+    return np.array([[1, 0], [0, -1]])
+
+def jones_quarter_wave_plate(fast_axis_angle):
+    """
+    Returns the Jones matrix for a quarter wave plate.
+    """
+    retardance = np.pi / 2
+    return jones_retarder(fast_axis_angle, retardance)
+
+def jones_half_wave_plate(fast_axis_angle):
+    """
+    Returns the Jones matrix for a half wave plate.
+    """
+    retardance = np.pi
+    return jones_retarder(fast_axis_angle, retardance)
+
+def jones_fresnel_reflection(m, theta_i, n_i):
+    """
+    Returns the Jones matrix for Fresnel reflection.
+    """
+    return np.array([[r_par(m, theta_i, n_i), 0],
+                     [0, r_per(m, theta_i, n_i)]])
+
+def jones_fresnel_transmission(m, theta_i):
+    """
+    Returns the Jones matrix for Fresnel transmission.
+    """
+    tpar = t_par(m, theta_i, n_i)
+    tper = t_per(m, theta_i, n_i)
+    return np.array([[tper, 0], [0, tpar]])
+
+</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interpretation -->
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Interpretation
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree">
+                <div class="card-body">
+                    <pre><code class="python">
+
+"""
+Parameters:
+J: complex array - Jones vector
+"""
+def get_jones_stateinfo(J):
+
+    #ellipse_azimuth
+    Ex0, Ey0 = np.abs(J)
+    delta = np.angle(J[1]) - np.angle(J[0])
+    numer = 2 * Ex0 * Ey0 * np.cos(delta)
+    denom = Ex0**2 - Ey0**2
+    ellipse_azimuth = 0.5 * np.arctan2(numer, denom)
+    #ellipse_axes & ellipticity
+    Ex0, Ey0 = np.abs(J)
+    alpha = ellipse_azimuth
+    C = np.cos(alpha)
+    S = np.sin(alpha)
+    asqr = (Ex0 * C)**2 + (Ey0 * S)**2 + 2 * Ex0 * Ey0 * C * S * np.cos(delta)
+    bsqr = (Ex0 * S)**2 + (Ey0 * C)**2 - 2 * Ex0 * Ey0 * C * S * np.cos(delta)
+    a = np.sqrt(abs(asqr))
+    b = np.sqrt(abs(bsqr))
+    if a < b:
+        ellipse_axes = round(b,3), round(a,3)
+        if abs(b) >= abs(a):
+            epsilon = np.arctan2(a, b)
+        else:
+            epsilon = np.arctan2(b, a)
+
+        if delta < 0:
+            ellipticity = -epsilon
+        else:
+            ellipticity = epsilon
+    else:
+        ellipse_axes = round(a,3),round(b,3)
+        if abs(a) >= abs(b):
+            epsilon = np.arctan2(b, a)
+        else:
+            epsilon = np.arctan2(a, b)
+
+        if delta < 0:
+            ellipticity = -epsilon
+        else:
+            ellipticity = epsilon
+
+
+
+    return  {
+            "jones_vector": np.round(J,3).tolist(),
+            "intensity": round(abs(J[0])**2 + abs(J[1])**2, 3),
+            "phase": round(np.degrees(np.angle(J[1]) - np.angle(J[0])), 3),
+            "ellipse_azimuth": round(np.degrees(ellipse_azimuth), 3),
+            "ellipticity": round(np.degrees(ellipticity), 3),
+            "ellipse_axes": ellipse_axes,
+            
+        }
+</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="accordion" id="accordionExample">
+        <h2>Stokes & Mueller Calculus</h2>
+        <!-- Mueller Matrix -->
+        <div class="card">
+            <div class="card-header" id="headingFour">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                        Stokes Vector
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour">
+                <div class="card-body">
+                    <pre><code class="python">
+"""
+Parameters: 
+vector_type: str - Type of polarization ('Linear Polarization', 'Left Circular Polarization','Right Circular Polarization', 'Elliptical Polarization', 'Unpolarized')
+angle: float - Angle in radians for linear polarization
+azimuth: float - Azimuth angle in radians for elliptical polarization
+elliptic_angle: float - Elliptic angle in radians for elliptical polarization
+DOP: float - Degree of Polarization, ranging from 0 to 1. 
+"""
+def stokes_linear_polarization(angle):
+    """
+    Returns the Stokes vector for linear polarization.
+    """
+    return np.array([1, np.cos(2 * angle), np.sin(2 * angle), 0])
+
+def stokes_left_circular_polarization():
+    """
+    Returns the Stokes vector for left circular polarization.
+    """
+    return np.array([1, 0, 0, -1])
+
+def stokes_right_circular_polarization():
+    """
+    Returns the Stokes vector for right circular polarization.
+    """
+    return np.array([1, 0, 0, 1])
+
+def stokes_elliptical_polarization(azimuth, elliptic_angle, DOP):
+    """
+    Returns the Stokes vector for elliptical polarization.
+    """
+    omega = np.arctan(elliptic_angle)
+    cw = np.cos(2 * omega)
+    sw = np.sin(2 * omega)
+    ca = np.cos(2 * azimuth)
+    sa = np.sin(2 * azimuth)
+    unpolarized = np.array([1 - DOP, 0, 0, 0])
+    polarized = DOP * np.array([1, cw * ca, cw * sa, sw])
+    return unpolarized + polarized
+
+def stokes_unpolarized():
+    """
+    Returns the Stokes vector for unpolarized light.
+    """
+    return np.array([1, 0, 0, 0])
+</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stokes Parameters -->
+        <div class="card">
+            <div class="card-header" id="headingFive">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        Mueller Matrix
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive">
+                <div class="card-body">
+                    <pre><code class="python">
+"""
+Parameters:
+matrix_type: str - Type of Mueller matrix ('Linear Polarizer', 'Retarder', 'Attenuator', 'Mirror', 'Rotation', 'Quarter Wave Plate', 'Half Wave Plate', 'Fresnel Reflection', 'Fresnel Transmission')
+matrix_angle: float - Angle in radians for linear polarizer
+fast_axis_angle: float - Fast axis angle in radians for retarders or wave plates
+retardance: float - Retardance in radians for retarders or wave plates
+optical_density: float - Optical density for attenuators
+index_of_refraction: complex - Complex index of refraction for Fresnel effects
+incidence_angle: float - Incidence angle in radians for Fresnel effects
+"""
+def mueller_linear_polarizer(matrix_angle):
+    """
+    Mueller matrix for a rotated linear polarizer.
+    Args:
+        matrix_angle: rotation angle measured from the horizontal plane [radians]
+    """
+    C2 = np.cos(2 * matrix_angle)
+    S2 = np.sin(2 * matrix_angle)
+    lp = np.array([[1, C2, S2, 0],
+                   [C2, C2**2, C2 * S2, 0],
+                   [S2, C2 * S2, S2 * S2, 0],
+                   [0, 0, 0, 0]])
+    return 0.5 * lp
+
+def mueller_retarder(fast_axis_angle, retardance):
+    """
+    Mueller matrix for a rotated optical retarder.
+    Args:
+        fast_axis_angle: fast axis angle [radians]
+        retardance: phase delay introduced between fast and slow-axes [radians]
+    """
+    C2 = np.cos(2 * fast_axis_angle)
+    S2 = np.sin(2 * fast_axis_angle)
+    C = np.cos(retardance)
+    S = np.sin(retardance)
+    ret = np.array([[1, 0, 0, 0],
+                    [0, C2**2 + C * S2**2, (1 - C) * S2 * C2, -S * S2],
+                    [0, (1 - C) * C2 * S2, S2**2 + C * C2**2, S * C2],
+                    [0, S * S2, -S * C2, C]])
+    return ret
+
+def mueller_attenuator(optical_density):
+    """
+    Mueller matrix for an optical attenuator.
+    Args:
+        optical_density: optical density [---]
+    """
+    att = np.array([[optical_density, 0, 0, 0],
+                    [0, optical_density, 0, 0],
+                    [0, 0, optical_density, 0],
+                    [0, 0, 0, optical_density]])
+    return att
+
+def mueller_mirror():
+    """
+    Mueller matrix for a perfect mirror.
+    """
+    mir = np.array([[1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 0, -1, 0],
+                    [0, 0, 0, -1]])
+    return mir
+
+def mueller_quarter_wave_plate(fast_axis_angle):
+    """
+    Mueller matrix for a rotated quarter-wave plate.
+    Args:
+        fast_axis_angle: fast axis angle [radians]
+    """
+    retardance = np.pi / 2
+    return mueller_retarder(fast_axis_angle, retardance)
+
+def mueller_half_wave_plate(fast_axis_angle):
+    """
+    Mueller matrix for a rotated half-wave plate.
+    Args:
+        fast_axis_angle: fast axis angle [radians]
+    """
+    retardance = np.pi
+    return mueller_retarder(fast_axis_angle, retardance)
+
+def mueller_fresnel_reflection(index_of_refraction, incidence_angle):
+    """
+    Returns the Mueller matrix for Fresnel reflection.
+    """
+    R_p = R_par(index_of_refraction, incidence_angle, 1)
+    R_s = R_per(index_of_refraction, incidence_angle, 1)
+    return np.array([[0.5 * (R_p + R_s), 0.5 * (R_p - R_s), 0, 0],
+                     [0.5 * (R_p - R_s), 0.5 * (R_p + R_s), 0, 0],
+                     [0, 0, np.sqrt(R_p * R_s), 0],
+                     [0, 0, 0, np.sqrt(R_p * R_s)]])
+
+def mueller_fresnel_transmission(index_of_refraction, incidence_angle):
+    """
+    Returns the Mueller matrix for Fresnel transmission.
+    """
+    T_p = T_par(index_of_refraction, incidence_angle, 1)
+    T_s = T_per(index_of_refraction, incidence_angle, 1)
+    return np.array([[0.5 * (T_p + T_s), 0.5 * (T_p - T_s), 0, 0],
+                     [0.5 * (T_p - T_s), 0.5 * (T_p + T_s), 0, 0],
+                     [0, 0, np.sqrt(T_p * T_s), 0],
+                     [0, 0, 0, np.sqrt(T_p * T_s)]])
+
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mueller Interpretation -->
+        <div class="card">
+            <div class="card-header" id="headingSix">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                        Stokes Vector Interpretation
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseSix" class="collapse" aria-labelledby="headingSix">
+                <div class="card-body">
+                    <pre><code class="python">
+"""
+Parameters:
+Sv: array - Stokes vector
+"""
+def get_stokes_stateinfo(Sv):
+
+    return {
+        "stokes_vector": np.round(Sv, 3).tolist(),
+        "intensity": np.round(Sv[0], 3),
+        "degree_of_polarization": np.round(np.sqrt(Sv[1]**2 + Sv[2]**2 + Sv[3]**2) / Sv[0], 3),
+        "ellipse_orientation": np.round(np.degrees(1 / 2 * np.arctan2(Sv[2], Sv[1])), 3),
+        "ellipse_ellipticity": np.round(np.degrees(1 / 2 * np.arcsin(Sv[3] / Sv[0])), 3),
+        "ellipse_axes": (np.round(np.sqrt((Sv[0] + np.sqrt(Sv[1]**2 + Sv[2]**2)) / 2), 2),
+                         np.round(np.sqrt((Sv[0] - np.sqrt(Sv[1]**2 + Sv[2]**2)) / 2), 2)),
+    }
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+   
+
+    </div>
+    
+    <br>
+    <div class="accordion" id="accordionExample">
+        <h2>Animations</h2>
+        <!-- Jones & Stokes conversion -->
+        <div class="card">
+            <div class="card-header" id="headingNine">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseZero" aria-expanded="true" aria-controls="collapseZero">
+                        Jones & Stokes conversion
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseZero" class="collapse" aria-labelledby="headingzero">
+                <div class="card-body">
+                    <pre><code class="python">
+def jones_to_stokes(J):
+    """
+    Convert Jones vector to Stokes vector.
+
+    Args:
+        J: Jones vector
+    Returns:
+        Stokes vector
+    """
+    Ex = abs(J[0])
+    Ey = abs(J[1])
+    phi = np.angle(J[1]) - np.angle(J[0])
+
+    S0 = Ex**2 + Ey**2
+    S1 = Ex**2 - Ey**2
+    S2 = 2 * Ex * Ey * np.cos(phi)
+    S3 = 2 * Ex * Ey * np.sin(phi)
+    return np.array([S0, S1, S2, S3])
+
+def stokes_to_jones(S):
+    """
+    Convert a Stokes vector to a Jones vector.
+
+    The default is to assume that the field is represented by exp(j * omega * t-k * z).
+
+    Args:
+        S : a Stokes vector
+    Returns:
+         the Jones vector for
+    """
+    if S[0] == 0:
+        return np.array([0, 0])
+
+    Ip = np.sqrt(S[1]**2 + S[2]**2 + S[3]**2)
+
+    Q = S[1] / Ip
+    U = S[2] / Ip
+    V = S[3] / Ip
+
+    E_0 = np.sqrt(Ip)
+
+    if Q == -1:
+        return np.array([0, E_0])
+
+    A = np.sqrt((1 + Q) / 2)
+    J = E_0 * np.array([A, complex(U, V) / (2 * A)])
+
+    return J
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+        <!-- 2D Animation -->
+        <div class="card">
+            <div class="card-header" id="headingzero">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseNine" aria-expanded="true" aria-controls="collapseNine">
+                        2D Animation
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseNine" class="collapse" aria-labelledby="headingNine">
+                <div class="card-body">
+                    <pre><code class="python">
+
+def animation_update(frame, J, ax):
+    """
+    Draw the next animation frame.
+    Args:
+        frame: Current frame number
+        J:     Jones vector
+        ax:    matplotlib axis for 2D plot
+    """
+    ax.clear()
+    h_amp, v_amp = np.abs(J)
+    h_phi, v_phi = np.angle(J)
+    the_max = max(h_amp, v_amp) * 1.1
+
+    ax.plot([-the_max, the_max], [0, 0], 'g')
+    ax.plot([0, 0], [-the_max, the_max], 'b')
+
+    t = np.linspace(0, 2 * np.pi, 100)
+    x = h_amp * np.cos(t - h_phi + frame)
+    y = v_amp * np.cos(t - v_phi + frame)
+    ax.plot(x, y, 'k')
+
+    x = h_amp * np.cos(h_phi + frame)
+    y = v_amp * np.cos(v_phi + frame)
+    ax.plot(x, y, 'ro')
+    ax.plot([x, x], [0, y], 'g--')
+    ax.plot([0, x], [y, y], 'b--')
+    ax.plot([0, x], [0, y], 'r')
+
+    ax.set_xlim(-the_max, the_max)
+    ax.set_ylim(-the_max, the_max)
+    ax.set_aspect('equal')
+    ax.grid(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.text(0, 1, "y", ha="center")
+    ax.text(1, 0, "x", va="center")
+
+def animation(vector):
+    input_filename = 'vector_animation.gif'
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ani = matplotlib.animation.FuncAnimation(fig, animation_update, frames=np.linspace(0, -2 * np.pi, 64), fargs=(vector, ax))
+    ani.save(input_filename, writer='pillow', fps=30)
+    plt.close(fig)  # Close the figure to avoid displaying it in Jupyter notebook
+    return ani
+
+# Example usage:
+# Define Jones vector 
+jones_vector = np.array([1 , 0])
+
+# Create the animation and save it as a GIF
+animation(jones_vector)
+
+# Example usage 2:
+# Define Stokes vector 
+stokes_vector = np.array([1, 0.5, 0.3, 0.2])  # Example Stokes vector
+jones_vector = stokes_to_jones(stokes_vector)  # Convert Stokes to Jones vector
+
+# Create the animation using the Jones vector and save it as a GIF
+animation(jones_vector)
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Poincare Sphere Animation -->
+        <div class="card">
+            <div class="card-header" id="headingTen">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTen" aria-expanded="true" aria-controls="collapseTen">
+                        Poincare Sphere Animation
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTen" class="collapse" aria-labelledby="headingTen">
+                <div class="card-body">
+                    <pre><code class="python">
+def draw_empty_sphere():
+    u = np.linspace(0, 2 * np.pi, 100)
+    v = np.linspace(0, np.pi, 100)
+    x = np.outer(np.cos(u), np.sin(v))
+    y = np.outer(np.sin(u), np.sin(v))
+    z = np.outer(np.ones(np.size(u)), np.cos(v))
+
+    sphere = go.Surface(x=x, y=y, z=z, opacity=0.2, showscale=False)
+    annotations = [
+        dict(
+            showarrow=False,
+            x=1.15, y=0, z=0,
+            text='horizontal 0°', 
+            xanchor='center', yanchor='bottom',
+            font=dict(size=12, color='black'),
+        ),
+        dict(
+            showarrow=False,
+            x=0, y=1.25, z=0,
+            text='45°', 
+            xanchor='center', yanchor='bottom',
+            font=dict(size=12, color='black'),
+        ),
+        dict(
+            showarrow=False,
+            x=0, y=0, z=1.15,
+            text='Right Circular', 
+            xanchor='center', yanchor='bottom',
+            font=dict(size=12, color='black'),
+        ),
+        dict(
+            showarrow=False,
+            x=0, y=0, z=-1.15,
+            text='Left Circular', 
+            xanchor='center', yanchor='bottom',
+            font=dict(size=12, color='black'),
+        ),
+        dict(
+            showarrow=False,
+            x=-1.15, y=0, z=0,
+            text='vertical 90°', 
+            xanchor='center', yanchor='bottom',
+            font=dict(size=12, color='black'),
+        ),
+    ]
+
+    return {'data': [sphere], 'layout': {'scene': {'annotations': annotations}}}
+
+def great_circle_points(ax, ay, az, bx, by, bz):
+    delta = np.arccos(ax * bx + ay * by + az * bz)
+    psi = np.linspace(0, delta)
+    sinpsi = np.sin(psi)
+    cospsi = np.cos(psi)
+    sindelta = np.sin(delta)
+    if sindelta == 0:
+        sindelta = 1e-5
+    elif abs(sindelta) < 1e-5:
+        sindelta = 1e-5 * np.sign(sindelta)
+    x = cospsi * ax + sinpsi * ((az**2 + ay**2) * bx - (az * bz + ay * by) * ax) / sindelta
+    y = cospsi * ay + sinpsi * ((az**2 + ax**2) * by - (az * bz + ax * bx) * ay) / sindelta
+    z = cospsi * az + sinpsi * ((ay**2 + ax**2) * bz - (ay * by + ax * bx) * az) / sindelta
+    return x, y, z
+
+def join_stokes_poincare(S1, S2, color='blue', lw=2, linestyle='dash'):
+    SS1 = np.sqrt(S1[1]**2 + S1[2]**2 + S1[3]**2)
+    SS2 = np.sqrt(S2[1]**2 + S2[2]**2 + S2[3]**2)
+    x, y, z = great_circle_points(S1[1] / SS1, S1[2] / SS1, S1[3] / SS1, S2[1] / SS2, S2[2] / SS2, S2[3] / SS2) 
+    line = go.Scatter3d(x=x, y=y, z=z, mode='lines', line=dict(color=color, width=lw, dash=linestyle),showlegend=False)
+    return line
+
+def draw_stokes_poincare(S, label, color):
+    SS = np.sqrt(S[1]**2 + S[2]**2 + S[3]**2)
+    x = S[1] / SS
+    y = S[2] / SS
+    z = S[3] / SS
+    marker = dict(symbol='circle', size=6, color=color, line=dict(color='black', width=1))
+    scatter = go.Scatter3d(x=[x], y=[y], z=[z], mode='markers', marker=marker, name=label, showlegend=False)
+    annotations = []
+    if label:
+        annotations.append(dict(
+            showarrow=True,
+            x=x, y=y, z=z,
+            text=label,
+            xanchor='left',
+            yanchor='middle',
+            font=dict(size=12, color=color if label in ['input','output']  else 'black'),
+            ax=20,
+            ay=-20,
+        ))
+    return scatter, annotations
+
+def draw_poincare_sphere(stokes_vecs):
+    """
+    Draws the Poincare sphere representation of the given Jones vectors.
+    
+    Args:
+        jones_vecs (list of tuple or list): A list of Jones vectors
+
+    """
+    fig = go.Figure()
+
+    # Add empty sphere
+    #fig.add_trace(draw_empty_sphere())
+    sphere_data = draw_empty_sphere()
+    fig.add_trace(sphere_data['data'][0]) 
+    annotations = sphere_data['layout']['scene']['annotations']
+
+    # Draw initial Stokes vector
+    scatter, ann = draw_stokes_poincare(stokes_vecs[0], label='input', color='red')
+    fig.add_trace(scatter)
+    annotations.extend(ann)
+
+    for i in range(len(stokes_vecs) - 1):
+        # Draw subsequent Stokes vector
+        if i == len(stokes_vecs) - 2:
+            scatter, ann = draw_stokes_poincare(stokes_vecs[i + 1], label='output', color='green')
+            fig.add_trace(scatter)
+            annotations.extend(ann)
+        else:
+            scatter, ann = draw_stokes_poincare(stokes_vecs[i + 1], label='None', color='blue')
+            fig.add_trace(scatter)
+
+        # Join arcs
+        fig.add_trace(join_stokes_poincare(stokes_vecs[i], stokes_vecs[i + 1], color='blue', linestyle='solid'))
+
+    # Update layout
+    fig.update_layout(
+        #title='Stokes Vectors on Poincaré Sphere',
+        scene=dict(
+            xaxis_title='S₁',
+            yaxis_title='S₂',
+            zaxis_title='S₃',
+            aspectmode='cube',
+            
+            annotations=sphere_data['layout']['scene']['annotations']
+        ),
+        #margin=dict(l=0, b=0),
+        margin=dict(l=0, r=0, b=0, t=0),
+        #width=800,  # Specify the width of the plot
+        height=800,
+    )
+    filename = 'poincare_sphere_plot.html'
+    fig.write_html(filename)
+    plot_html = fig.to_html(full_html=False)
+# Example usage:
+stokes_vectors = [
+    np.array([1, 0.5, 0.3, 0.2]),  # Example Stokes vector 1
+    np.array([0.8, 0.2, 0.4, 0.1]),  # Example Stokes vector 2
+    np.array([0.6, 0.1, 0.2, 0.3])   # Example Stokes vector 3
+]
+
+
+# Draw the Poincare sphere in html page
+draw_poincare_sphere(stokes_vectors)
+
+# Example Jones vectors
+jones_vectors = [
+    np.array([1, 1j]),       # Example Jones vector 1
+    np.array([0.5, 0.5j]),   # Example Jones vector 2
+    np.array([0.2 + 0.3j, 0.4 - 0.1j])  # Example Jones vector 3
+]
+# Convert Jones vectors to Stokes vectors
+stokes_vectors = [jones_to_stokes(jv) for jv in jones_vectors]
+
+# Draw the Poincare sphere representation of the Stokes vectors
+draw_poincare_sphere(stokes_vectors)
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+

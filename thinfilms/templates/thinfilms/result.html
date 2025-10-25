@@ -1,0 +1,713 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block content %}
+<title>{% block title %}Thin Film {{ multilayer_name }}{% endblock %}</title>
+
+        <form method="POST" action="{% url 'thinfilms:result' %}">
+            {% csrf_token %}
+            
+                
+                
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Material</th>
+                            <th>Thickness (nm)</th>
+                          
+                            <th>Min Wavelength (nm)</th>
+                            <th>Max Wavelength (nm)</th>
+                            <th>N values</th>
+                            <th colspan="4">Data</th>
+                        </tr>
+                    </thead>
+                    {% for layer in detailed_layers_data %}
+                    <tbody>
+                        
+                        <tr>
+                            <td>{% if forloop.last %}
+                                Substrate
+                            {% else %}
+                                {{ forloop.counter }}
+                            {% endif %}</td>
+
+                            <td>{{ layer.book }}</td>
+                            <td>{{ layer.thickness }}</td>
+                     
+                            
+                            <td>{{ layer.min_wavelength }}</td>
+                            <td>{{ layer.max_wavelength }}</td>
+                            <td>{{ layer.num_values }}</td>
+                            <td >
+                                <button type="button" class="btn btn-link" onclick="toggleRow('row{{ forloop.counter0 }}')">Show Data</button>
+                            </td>
+                            <td><a href="{{ layer.refractiveindex_link }}" target="_blank">RefractiveIndex.info ({{ layer.book }} - {{ layer.page }})</a></td>
+                            <td><a href="https://github.com/polyanskiy/refractiveindex.info-database/blob/master/database/data/main/{{ layer.book }}/nk/{{ layer.page }}.yml" target="_blank">GitHub</a></td>
+                        
+
+                            <td><a href="{% url 'thinfilms:download_excel' layer.book layer.page %}" target="_blank">Download Excel</a></td>
+                        </tr>
+                    </tbody>
+                        <tr id="row{{ forloop.counter0 }}" class="hidden-row">
+                            <td colspan="10">
+                                <div class="scrollable-table-container">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Wavelength (nm)</th>
+                                                <th>{{ layer.book }}_n</th>
+                                                <th>{{ layer.book }}_k</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for data in layer.parsed_data %}
+                                            <tr>
+                                                <td>{{ data.0 }}</td>
+                                                <td>{{ data.1 }}</td>
+                                                <td>{{ data.2 }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="10" style="height: 20px; background-color:#ffffff;"><h1 align="center">{{ multilayer_name }}</h1></td> <!-- Adds space -->
+                        </tr>
+                        <tr>
+                            <th colspan="5" style="text-align: center;">Common Wavelengths and Corresponding n, k Values </th>
+                            <td>{{ common_wavelengths_all|first  }}</td>
+                            <td>{{ common_wavelengths_all|last  }}</td>
+                            <td>{{ common_wavelengths_all|length }}</td>
+                            <td style="text-align: center;width: 10%; "><button type="button" class="btn btn-link" onclick="toggleRow('row_all_data')">Show Data</button></td>
+                            <td style="text-align: center;width: 10%;"><a href="{% url 'thinfilms:download_excel_common' %}" target="_blank">Download Excel</a></td>
+                    
+                        </tr>
+                        <tr class="hidden-row"></tr>
+                        <tr id="row_all_data" class="hidden-row">
+                            <td colspan="10">
+                                <div class="scrollable-table-container">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Wavelength (nm)</th>
+                                                {% for book in books %}
+                                                <th>{{ book }} n</th>
+                                                <th>{{ book }} k</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for wavelength, nk_row in final_data %}
+                                            <tr>
+                                                <td>{{ wavelength }}</td>
+                                                {% for n, k in nk_row %}
+                                                <td>{{ n }}</td>
+                                                <td>{{ k }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                </table>
+            </div>
+
+            <br>
+            
+            <!-- Sidebar for tabs -->
+            <div class="btn-group w-100" role="group" aria-label="Tab Buttons">
+        
+                <button id="btn-wavelengths" type="button" class="btn1 btn-inactive" data-target="#tab-pane-1">Graph By Wavelengths</button>
+                <button id="btn-angle" type="button" class="btn1 btn-inactive" data-target="#tab-pane-2">Graph By Angles</button>
+                <button id="btn-thickness" type="button" class="btn1 btn-inactive" data-target="#tab-pane-3">Graph By Thickness</button>
+            </div>
+            <!-- Content for tabs -->
+                    
+            <div class="tab-content">
+                <br>
+                <div class="tab-pane " id="tab-pane-1">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th rowspan="2" style="text-align: center;width: 50%;">Incidence Angle in degrees:</th>
+                                <th colspan="2" style="text-align: center;width: 50%;">Wavelength range in nm</th>
+                                
+                            </tr>
+                            <tr>
+                                <th style="text-align: center;width: 25%;">Min</th>
+                                <th style="text-align: center;width: 25%;">Max</th>
+                                
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;width: 50%;">{{ form.incidence_angle }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form.min_wavelength }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form.max_wavelength }}</td>
+                                
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr>
+                                <td colspan="3" style="text-align: center;width: 33.33%;"><button style="width: 100%;" class="btn btn-primary" type="submit">Submit</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                    <div class="table-wrapper">
+                    <table class="table">
+                        <tr>
+                            <th colspan="6" style="text-align: center;">
+                                {{ multilayer_name }} <br>RTA by Wavelength {{ common_wavelengths|first  }} - {{ common_wavelengths|last }} nm
+                                ({{ common_wavelengths|length }} value) at incidence angle {{incidence_angle}}°  </th>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align: center;width: 33%;">P-polarized</td>
+                            <td colspan="2" style="text-align: center;width: 33%;">S-polarized </td>
+                            <td colspan="2"style="text-align: center;width: 33%;">Unpolarized </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_p')">Show Data</button></td>
+                            <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_p' %}" target="_blank">Download Excel</a></td>
+                            <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_s')">Show Data</button></td>
+                            <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_s' %}" target="_blank">Download Excel</a></td>
+                            <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_unpol')">Show Data</button></td>
+                            <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_unpolarized' %}" target="_blank">Download Excel</a></td>
+                        </tr>
+                        <tr class="hidden-row"></tr>
+                        <tr id="row_p" class="hidden-row" >
+                            <td colspan="6">
+                                <div class="scrollable-table-container">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Wavelength (nm)</th>
+                                                <th>Reflectance R_p</th>
+                                                <th>Transmittance T_p</th>
+                                                <th>Absorbance A_p</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for wavelength, R, T, A in RTA_p %}
+                                            <tr>
+                                                <td>{{ wavelength }}</td>
+                                                <td>{{ R }}</td>
+                                                <td>{{ T }}</td>
+                                                <td>{{ A }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hidden-row"></tr>
+                        <tr id="row_s" class="hidden-row">
+                            <td colspan="6">
+                                <div class="scrollable-table-container">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Wavelength (nm)</th>
+                                                <th>Reflectance R_s</th>
+                                                <th>Transmittance T_s</th>
+                                                <th>Absorbance A_s</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for wavelength, R, T, A in RTA_s %}
+                                            <tr>
+                                                <td>{{ wavelength }}</td>
+                                                <td>{{ R }}</td>
+                                                <td>{{ T }}</td>
+                                                <td>{{ A }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hidden-row"></tr>
+                        <tr id="row_unpol" class="hidden-row">
+                            <td colspan="6">
+                                <div class="scrollable-table-container">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Wavelength (nm)</th>
+                                                <th>Reflectance R_unpolarized</th>
+                                                <th>Transmittance T_unpolarized</th>
+                                                <th>Absorbance A__unpolarized</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for wavelength, R, T, A in RTA_unpolarized %}
+                                            <tr>
+                                                <td>{{ wavelength }}</td>
+                                                <td>{{ R }}</td>
+                                                <td>{{ T }}</td>
+                                                <td>{{ A }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    </div>
+                    
+                    <div id="graph_p"></div>
+                    <div id="graph_s" ></div>
+                    <div id="graph_unpolarized" ></div>
+                    <script type="text/javascript">
+                        var graphData_p = {{ graph_p_json|safe }};
+                        Plotly.newPlot('graph_p', graphData_p.data, graphData_p.layout);
+                    
+                        var graphData_s = {{ graph_s_json|safe }};
+                        Plotly.newPlot('graph_s', graphData_s.data, graphData_s.layout);
+                    
+                        var graphData_unpolarized = {{ graph_unpolarized_json|safe }};
+                        Plotly.newPlot('graph_unpolarized', graphData_unpolarized.data, graphData_unpolarized.layout);
+                    
+                    </script>
+                    
+                </div>
+                <div class="tab-pane " id="tab-pane-2">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th rowspan="2" style="text-align: center;width: 50%;">Wavelength in nm</th>
+                                <th colspan="3" style="text-align: center;width: 50%;">Angle range in degrees</th>
+                            </tr>
+                            <tr>
+                                <th style="text-align: center;width: 13.33%;">Min</th>
+                                <th style="text-align: center;width:13.33%;">Max</th>
+                                <th style="text-align: center;width:13.33%;">Steps</th>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;width: 50%;">{{ form1.chosen_wavelength }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form1.min_angle }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form1.max_angle }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form1.step_angle }}</td>
+
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr>
+                                <td colspan="4" style="text-align: center;"><button style="width: 100%;" class="btn btn-primary" type="submit">Submit</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th colspan="6" style="text-align: center;">{{ multilayer_name }} <br>RTA by Angle {{ angles|first  }} , {{ angles|last }} °
+                                    ({{ angles|length }} value) at wavelength {{wavelength_angle}} nm </th>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;width: 33%;">P-polarized</td>
+                                <td colspan="2" style="text-align: center;width: 33%;">S-polarized </td>
+                                <td colspan="2"style="text-align: center;width: 33%;">Unpolarized </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_angle_p')">Show Data</button></td>
+                                <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_angle_p' %}" target="_blank">Download Excel</a></td>
+                                <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_angle_s')">Show Data</button></td>
+                                <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_angle_s' %}" target="_blank">Download Excel</a></td>
+                                <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_angle_unpol')">Show Data</button></td>
+                                <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_angle_unpolarized' %}" target="_blank">Download Excel</a></td>
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr id="row_angle_p" class="hidden-row">
+                                <td colspan="6">
+                                    <div class="scrollable-table-container">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Angle (degrees)</th>
+                                                    <th>Reflectance R_p</th>
+                                                    <th>Transmittance T_p</th>
+                                                    <th>Absorbance A_p</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for wavelength, R, T, A in RTA_angle_p %}
+                                                <tr>
+                                                    <td>{{ wavelength }}</td>
+                                                    <td>{{ R }}</td>
+                                                    <td>{{ T }}</td>
+                                                    <td>{{ A }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr id="row_angle_s" class="hidden-row">
+                                <td colspan="6">
+                                    <div class="scrollable-table-container">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Angle (degrees)</th>
+                                                    <th>Reflectance R_s</th>
+                                                    <th>Transmittance T_s</th>
+                                                    <th>Absorbance A_s</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for wavelength, R, T, A in RTA_angle_s %}
+                                                <tr>
+                                                    <td>{{ wavelength }}</td>
+                                                    <td>{{ R }}</td>
+                                                    <td>{{ T }}</td>
+                                                    <td>{{ A }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr id="row_angle_unpol" class="hidden-row">
+                                <td colspan="6">
+                                    <div class="scrollable-table-container">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Angle (degrees)</th>
+                                                    <th>Reflectance R_unpolarized</th>
+                                                    <th>Transmittance T_unpolarized</th>
+                                                    <th>Absorbance A__unpolarized</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for wavelength, R, T, A in RTA_angle_unpolarized %}
+                                                <tr>
+                                                    <td>{{ wavelength }}</td>
+                                                    <td>{{ R }}</td>
+                                                    <td>{{ T }}</td>
+                                                    <td>{{ A }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="graph_angle_p" ></div>
+                    <div id="graph_angle_s"></div>
+                    <div id="graph_angle_unpolarized"></div>
+                    <script type="text/javascript">
+
+                        var graphData_angle_unpolarized = {{ graph_angle_unpolarized_json|safe }};
+                        Plotly.newPlot('graph_angle_unpolarized', graphData_angle_unpolarized.data, graphData_angle_unpolarized.layout);
+                    
+                        var graphData_angle_p = {{ graph_angle_p_json|safe }};
+                        Plotly.newPlot('graph_angle_p', graphData_angle_p.data, graphData_angle_p.layout);
+                    
+                        var graphData_angle_s = {{ graph_angle_s_json|safe }};
+                        Plotly.newPlot('graph_angle_s', graphData_angle_s.data, graphData_angle_s.layout);
+                    </script>
+                    
+                </div>
+                <div class="tab-pane" id="tab-pane-3">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th rowspan="2" style="text-align: center;width: 20%;">Layer</th>
+
+                                <th rowspan="2" style="text-align: center;width: 20%;">Incidence Angle in degrees</th>
+                                <th rowspan="2" style="text-align: center;width: 20%;">Wavelength in nm</th>
+                                <th colspan="3" style="text-align: center;width: 40%;">Thickness range in nm</th>
+                                
+                            </tr>
+                            <tr>
+                                <th style="text-align: center;width: 13.33%;">Min</th>
+                                <th style="text-align: center;width:13.33%;">Max</th>
+                                <th style="text-align: center;width:13.33%;">Steps</th>
+                                
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;width: 25%;">{{ form3.chosen_layer }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form3.incidence_angle_thick }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form3.chosen_wavelength_thick }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form3.min_thick }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form3.max_thick }}</td>
+                                <td style="text-align: center;width: 25%;">{{ form3.step_thick }}</td>
+                                
+                            </tr>
+                            <tr>
+                                <td colspan="6" style="text-align: center;width: 33.33%;"><button style="width: 100%;" class="btn btn-primary" type="submit">Submit</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                        <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th colspan="6" style="text-align: center;">{{multilayer_name_thick}} <br>RTA at wavelength {{wavelength_thick}} nm </th>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;width: 33%;">P-polarized</td>
+                                <td colspan="2" style="text-align: center;width: 33%;">S-polarized</td>
+                                <td colspan="2" style="text-align: center;width: 33%;">Unpolarized</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_thick_p')">Show Data</button></td>
+                                <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_thick_p' %}" target="_blank">Download Excel</a></td>
+                                <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_thick_s')">Show Data</button></td>
+                                <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_thick_s' %}" target="_blank">Download Excel</a></td>
+                                <td style="text-align: center;width: 16.66%;"><button type="button" class="btn btn-link" onclick="toggleRow('row_thick_unpol')">Show Data</button></td>
+                                <td style="text-align: center;width: 16.66%;"><a href="{% url 'thinfilms:download_excel_RTA_thick_unpolarized' %}" target="_blank">Download Excel</a></td>
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr id="row_thick_p" class="hidden-row">
+                                <td colspan="6">
+                                    <div class="scrollable-table-container">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thickness (nm)</th>
+                                                    <th>Reflectance R_p</th>
+                                                    <th>Transmittance T_p</th>
+                                                    <th>Absorbance A_p</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for thickness, R, T, A in RTA_thick_p %}
+                                                <tr>
+                                                    <td>{{ thickness }}</td>
+                                                    <td>{{ R }}</td>
+                                                    <td>{{ T }}</td>
+                                                    <td>{{ A }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr id="row_thick_s" class="hidden-row">
+                                <td colspan="6">
+                                    <div class="scrollable-table-container">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thickness (nm)</th>
+                                                    <th>Reflectance R_s</th>
+                                                    <th>Transmittance T_s</th>
+                                                    <th>Absorbance A_s</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for thickness, R, T, A in RTA_thick_s %}
+                                                <tr>
+                                                    <td>{{ thickness }}</td>
+                                                    <td>{{ R }}</td>
+                                                    <td>{{ T }}</td>
+                                                    <td>{{ A }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hidden-row"></tr>
+                            <tr id="row_thick_unpol" class="hidden-row">
+                                <td colspan="6">
+                                    <div class="scrollable-table-container">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thickness (nm)</th>
+                                                    <th>Reflectance R_unpolarized</th>
+                                                    <th>Transmittance T_unpolarized</th>
+                                                    <th>Absorbance A_unpolarized</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for thickness, R, T, A in RTA_thick_unpolarized %}
+                                                <tr>
+                                                    <td>{{ thickness }}</td>
+                                                    <td>{{ R }}</td>
+                                                    <td>{{ T }}</td>
+                                                    <td>{{ A }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="graph_thick_p"></div>
+                    <div id="graph_thick_s"></div>
+                    <div id="graph_thick_unpolarized"></div>
+                    <script type="text/javascript">
+                        var graphData_thick_unpolarized = {{ graph_thick_unpolarized_json|safe }};
+                        Plotly.newPlot('graph_thick_unpolarized', graphData_thick_unpolarized.data, graphData_thick_unpolarized.layout);
+                    
+                        var graphData_thick_p = {{ graph_thick_p_json|safe }};
+                        Plotly.newPlot('graph_thick_p', graphData_thick_p.data, graphData_thick_p.layout);
+                    
+                        var graphData_thick_s = {{ graph_thick_s_json|safe }};
+                        Plotly.newPlot('graph_thick_s', graphData_thick_s.data, graphData_thick_s.layout);
+                    </script>
+                </div>
+            </div>
+        </form>
+
+
+<script>
+    function toggleRow(rowId) {
+        var row = document.getElementById(rowId);
+        if (row.classList.contains('hidden-row')) {
+            row.classList.remove('hidden-row');
+            row.classList.add('visible-row');
+        } else {
+            row.classList.remove('visible-row');
+            row.classList.add('hidden-row');
+        }
+    }
+</script>
+
+<script>
+    // JavaScript to handle tab switching and save the active tab
+    document.addEventListener("DOMContentLoaded", function () {
+        const buttons = document.querySelectorAll(".btn1");
+        const panes = document.querySelectorAll(".tab-pane");
+
+        // Check localStorage for the last active tab
+        const activeTab = localStorage.getItem("activeTab");
+        if (activeTab) {
+            // Remove active class from all buttons
+            buttons.forEach((btn) => {
+                btn.classList.remove("btn-active");
+                btn.classList.add("btn-inactive");
+            });
+
+            // Hide all panes
+            panes.forEach((pane) => {
+                pane.classList.remove("active");
+            });
+
+            // Restore the active tab and pane
+            const targetButton = document.querySelector(`[data-target="${activeTab}"]`);
+            const targetPane = document.querySelector(activeTab);
+            if (targetButton && targetPane) {
+                targetButton.classList.add("btn-active");
+                targetButton.classList.remove("btn-inactive");
+                targetPane.classList.add("active");
+            }
+        }
+
+        buttons.forEach((button) => {
+            button.addEventListener("click", function () {
+                // Remove active class from all buttons
+                buttons.forEach((btn) => {
+                    btn.classList.remove("btn-active");
+                    btn.classList.add("btn-inactive");
+                });
+
+                // Add active class to the clicked button
+                this.classList.add("btn-active");
+                this.classList.remove("btn-inactive");
+
+                // Hide all panes
+                panes.forEach((pane) => {
+                    pane.classList.remove("active");
+                });
+
+                // Show the target pane
+                const targetPane = document.querySelector(this.dataset.target);
+                if (targetPane) {
+                    targetPane.classList.add("active");
+
+                    // Save the active tab in localStorage
+                    localStorage.setItem("activeTab", this.dataset.target);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+   
+    
+    .scrollable-table-container {
+        max-height: 400px; /* Set the maximum width of the container */
+        overflow-y: auto; 
+    }
+    /* Visibility Toggle Styles */
+    .hidden-row {
+        display: none;
+    }
+
+    .visible-row {
+        display: table-row;
+    }
+
+    
+
+    /* Optional: Styling for Data Toggle Button */
+    .btn-link {
+        padding: 5px 8px;  /* Compact padding */
+        font-size: 0.8rem;  /* Smaller text for the button */
+        background: none;
+        border: none;
+        text-align: left;
+    }
+
+    .btn1 {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        width:100%;%
+    }
+    .btn-active {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+    .btn-inactive {
+        background-color: #f9f9f9;
+        color: black;
+    }
+    .tab-pane {
+        display: none;
+    }
+    .tab-pane.active {
+        display: block;
+    }
+    .tab-content {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock content %}
+
+
+

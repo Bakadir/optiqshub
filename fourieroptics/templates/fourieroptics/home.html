@@ -1,0 +1,358 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+
+ 
+<title>{% block title %}Fourier optics{% endblock %}</title>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script>
+    // Add CSRF token to all HTMX requests
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+</script>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+        <form id="searchForm"
+            hx-post="{% url 'fourieroptics:home' %}"
+            hx-target="#resultsSection"
+            hx-swap="innerHTML"
+            hx-indicator="#loadingIndicator"
+            >
+            {% csrf_token %}
+            
+            <p class="main-title mb-3">
+                Simulating Diffraction Patterns with the Angular Spectrum Method
+            </p>
+            <div class="row g-4 mb-3 mt-3">
+                <div class="col-lg-4">
+
+                    <!-- Light Source -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header fw-bold text-center" >Light Source</div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                            <table class="table table-sm table-bordered align-middle text-center" id="lightTable">
+                                <thead class="table-secondary">
+                                <tr><th>Wavelength (nm)</th><th>Intensity</th></tr>
+                                </thead>
+                                <tbody id="lightTableBody">
+                                <tr>
+                                    <td><input type="number" name="wavelength-1" class="form-control" value="400"></td>
+                                    <td><input type="number" name="intensity-1" class="form-control" value="1.0"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                            <div class="text-center">
+                            <button type="button" id="removeRow" class="btn btn-outline-danger btn-sm me-2">−</button>
+                            <button type="button" id="addRow" class="btn btn-outline-success btn-sm">＋</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-8">
+                    <div class="row g-4 mb-3">
+                        <div class="col-lg-12">
+                        <!-- Aperture Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header fw-bold text-center" >
+                                Aperture Type
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered align-middle text-center" id="lightTable">
+                                        <thead class="table-secondary">
+                                        <tr><th ><input type="radio" name="aperture_type" value="N-Slit" style="cursor:pointer;" checked >
+                                    N-Slit</th>
+                                            <th><input type="radio" name="aperture_type" value="Circular" style="cursor:pointer;">
+                                    Circular</th></tr>
+                                        </thead>
+                                      
+                                    </table>
+                                </div>
+                             
+                                <!-- N-Slit table -->
+                                <div class=" nslit-section">
+                                    <table class="table table-sm table-bordered text-center align-middle mb-0">
+                                    <thead class="table-secondary">
+                                        <tr><th colspan="4">N-Slit Parameters</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <th>Number of Slits</th>
+                                        <th>Distance Between (mm)</th>
+                                        <th>Width (mm)</th>
+                                        <th>Height (mm)</th>
+                                        
+                                        </tr>
+                                        <tr>
+                                        <td>{{ form.number_of_slits }}</td>
+                                        <td>{{ form.distance_between_slits }}</td>
+                                        <td>{{ form.slit_width }}</td>
+                                        <td>{{ form.slit_height }}</td>
+                                        
+                                        </tr>
+                                    </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Circular table -->
+                                <div class=" circular-section" style="display:none;">
+                                    <table class="table table-sm table-bordered text-center align-middle mb-0">
+                                    <thead class="table-secondary"><tr><th>Circular Aperture</th></tr></thead>
+                                    <tbody>
+                                        <tr><th>Aperture Radius (mm)</th></tr>
+                                        <tr><td>{{ form.aperture_radius }}</td></tr>
+                                    </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", () => {
+                            const nslitSection = document.querySelector(".nslit-section");
+                            const circularSection = document.querySelector(".circular-section");
+                            const radios = document.querySelectorAll('input[name="aperture_type"]');
+
+                            radios.forEach(radio => {
+                                radio.addEventListener("change", () => {
+                                if (radio.value === "N-Slit") {
+                                    nslitSection.style.display = "block";
+                                    circularSection.style.display = "none";
+                                } else {
+                                    nslitSection.style.display = "none";
+                                    circularSection.style.display = "block";
+                                }
+                                });
+                            });
+                            });
+                        </script>
+                        </div>
+                    </div>
+                    <!-- Screen + Parameters -->
+                    <div class="row g-4 mb-3">
+                    
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center" >Screen</div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-bordered text-center align-middle mb-0">
+                                <thead class="table-secondary">
+                                    <tr><th>Distance (cm)</th><th>Width (mm)</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>{{ form.distance_screen_to_aperture }}</td>
+                                    <td>{{ form.screen_width }}</td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center" >Parameters</div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-bordered text-center align-middle mb-0">
+                                <thead class="table-secondary">
+                                    <tr><th>Resolution</th><th>Frames</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>{{ form.resolution }}</td>
+                                    <td>{{ form.animation_frames }}</td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+
+            <button type="submit" class="btn btn-primary w-100 fw-semibold py-2" id="submitBtn">Submit</button>
+                        <div id="loadingIndicator" class="d-none text-center my-2">
+    <div class="spinner-border custom-spinner" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        </form>
+    
+        
+        <div id="resultsSection" class="position-relative">
+
+             
+            {% include "fourieroptics/partials/fourier_results.html" %}
+
+        </div>
+        
+        <style>
+            .custom-spinner {
+                color: #80d0c7 !important;
+                width: 2rem;
+                height: 2rem;
+                }
+        </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const submitBtn = document.getElementById("submitBtn");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+
+            // When the form is submitted
+            document.getElementById("searchForm").addEventListener("submit", function () {
+                submitBtn.classList.add("d-none");      // hide the button
+                loadingIndicator.classList.remove("d-none");  // show the spinner
+            });
+
+            // If you're using HTMX — reset when request completes
+            document.body.addEventListener("htmx:afterRequest", function () {
+                submitBtn.classList.remove("d-none");   // show button again
+                loadingIndicator.classList.add("d-none"); // hide spinner
+            });
+            });
+        </script>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+            const tableBody = document.getElementById("lightTableBody");
+            const addBtn = document.getElementById("addRow");
+            const removeBtn = document.getElementById("removeRow");
+            const submitBtn = document.getElementById("submitBtn");
+
+            let rowCount = tableBody.rows.length; // start count at 1
+
+            // ➕ Add new row
+            addBtn.addEventListener("click", function() {
+                rowCount++;
+                const newRow = document.createElement("tr");
+                newRow.innerHTML = `
+                <td><input type="number" name="wavelength-${rowCount}" class="form-control" value="500"></td>
+                <td><input type="number" name="intensity-${rowCount}" class="form-control" value="1"></td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+
+            // ➖ Remove last row
+            removeBtn.addEventListener("click", function() {
+                if (tableBody.rows.length > 1) {
+                tableBody.deleteRow(-1);
+                rowCount--;
+                }
+            });
+
+            // 🚀 Submit data
+            submitBtn.addEventListener("click", function() {
+                const formData = new FormData(); // use FormData for normal POST
+
+                for (let i = 1; i <= rowCount; i++) {
+                const wavelength = document.querySelector(`[name="wavelength-${i}"]`)?.value;
+                const intensity = document.querySelector(`[name="intensity-${i}"]`)?.value;
+
+                if (wavelength && intensity) {
+                    formData.append(`wavelength-${i}`, wavelength);
+                    formData.append(`intensity-${i}`, intensity);
+                }
+                }
+            });
+
+            
+            });
+        </script>
+
+        <style>
+            #plots {
+                background-color: rgb(208, 208, 208); 
+                color: rgb(0, 0, 0); 
+                height: 50px;
+                width: 100%;
+                margin-bottom: 10px;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+            }
+            #plots:hover {
+                background-color: rgb(79, 79, 79); 
+                color: white; 
+            }
+            .title {
+                font-size: 20px;
+                font-weight: bold;
+                color: rgb(0, 0, 0);
+                text-decoration: none;
+                margin-bottom: 10px;
+                margin-top: 10px;
+                text-align: center;
+                background-color: #dddcdc;
+        
+            }
+        
+            .table-container {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .table-wrapper {
+                overflow-x: auto;
+            }
+            
+            table {
+                border-collapse: collapse;
+                background-color: #ffffff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                font-size: 12px; /* Make the table smaller */
+                width: auto; /* Allow table to size itself based on content */
+                margin: 0 auto; /* Center the table */
+            }
+            
+            th, td {
+                padding: 5px; /* Smaller padding for compact look */
+                border: 1px solid #b9b9b9;
+                text-align: center;
+                vertical-align: middle; /* Align content in the middle */
+            }
+            
+            th {
+                background-color: #cecece;
+                color: rgb(0, 0, 0);
+            }
+            
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            
+            .form-container {
+                display: inline-block;
+                width: 100%; /* Allow forms to scale with column width */
+                text-align: center; /* Center align the form fields */
+            }
+            
+            input, select, textarea {
+                font-size: 12px; /* Smaller input font size */
+                padding: 3px; /* Reduce padding for inputs */
+                width: auto; /* Match content width */
+                text-align: center; /* Center the form text */
+                box-sizing: border-box; /* Ensure inputs respect padding and width */
+            }
+            .main-title{
+                font-size: 22px;
+                font-weight: bold;
+                color: rgb(0, 0, 0);
+                text-decoration: none;
+                margin-top: 10px;
+                text-align: center;
+            }
+        </style>
+
+{% endblock %}

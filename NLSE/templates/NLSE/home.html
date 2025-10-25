@@ -1,0 +1,303 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+<title>{% block title %}NLSE{% endblock %}</title>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script>
+    // Add CSRF token to all HTMX requests
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+</script>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <form id="searchForm"
+            hx-post="{% url 'NLSE:home' %}"
+            hx-target="#resultsSection"
+            hx-swap="innerHTML"
+            hx-indicator="#loadingIndicator">
+        {% csrf_token %}
+        
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+        <p class="main-title">
+            Solving the Nonlinear Schrödinger Equation using the Split-Step Fourier Method to model pulses through an optical fiber
+        </p>
+        <div style="text-align: center;font-size: 24px;">
+            \( \frac{\partial A}{\partial z} = -\frac{\alpha}{2} A - i\frac{\beta}{2} \frac{\partial^2 A}{\partial T^2} + i\gamma |A|^2 A \)
+        </div>
+        <div style="position: relative; margin-top: 1.5rem;">
+            <hr style="margin: 0;">
+            <a href="https://www.youtube.com/watch?v=xIdozUy9Nas"
+                target="_blank"
+                style="
+                position: absolute;
+                right: 0;
+                top: -16px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #f8f9fa;
+                padding: 2px 6px;
+                border-radius: 6px;
+                text-decoration: none;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+                ">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png" 
+                    alt="YouTube" 
+                    style="height:20px; "> &nbsp  Souce
+            </a>
+        </div>
+
+        
+        <div class="row mt-4" style="margin-bottom: 0px;">
+            <div class="col-lg-4 justify-content-center align-items-center">
+                <div style="text-align: center;font-weight: bold;margin-bottom: 10px;">Gaussian pulse</div>
+                <div class="row justify-content-center align-items-center" style="text-align: center;font-size: 17px;">
+                    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+                    <script>MathJax.typeset();</script>
+                    <div id="equation">
+                        \( A \cdot \exp\left[-\left(\frac{1+j \cdot C_h}{2}\right)\left(\frac{t}{\tau}\right)^{2 \cdot m} - j \cdot 2 \pi f_c \cdot t\right] \)
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 justify-content-center align-items-center">
+                <div style="text-align: center;font-weight: bold;margin-bottom: 10px;">Sinc Pulse</div>
+                <div class="row justify-content-center align-items-center" style="text-align: center;font-size: 16px;">
+                    <div id="equation">
+                        \( A \cdot \text{sinc}\left(\frac{t }{\tau}\right) \cdot \exp\left[-\left(\frac{1+j \cdot C_h}{2}\right)\left(\frac{t}{\tau}\right)^{2} - j \cdot 2 \pi f_c \cdot t\right] \)
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 justify-content-center align-items-center">
+                <div style="text-align: center;font-weight: bold;margin-bottom: 10px;">Sech pulse (Soliton)</div>
+                <div class="row justify-content-center align-items-center" style="text-align: center;font-size: 18px;height: 50px;">
+                    <div id="equation">
+                        \( \frac{A}{\text{cosh}\left(\frac{t }{\tau}\right)} \cdot \exp\left[\frac{-j \cdot C_h}{2} \cdot \left(\frac{t}{\tau}\right)^{2} - j \cdot 2 \pi f_c \cdot t\right] \)
+                    </div>
+                    
+                </div>
+            
+        
+            </div>
+        </div>
+      
+                <div class="card shadow-sm mt-4 mb-4">
+                    <div class="card-header fw-bold text-center" >Parameters</div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Pulse Number of Points</th>
+                                    <th colspan="3">Time Resolution \(dt\)(s)</th>
+                                    <th>Fiber Number of Steps</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ form.number_of_points }}</td>
+                                
+                                    <td >{{ form.time_resolution_1 }}</td>
+                                    <td class="e">e</td>
+                                    <td >{{ form.time_resolution_2 }}</td>
+                                    <td>{{ form3.nsteps }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4 mb-4">
+                    <div class="card-header fw-bold text-center" >Input Pulse : {{ form1.pulse_type }}</div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Amplitude A (W<sup>1/2</sup>)</th>
+                                    <th>Pulse Duration: \(\tau =k \cdot dt; \)</th>
+                                    <th>Carrier frequency \(f_c\) (Hz)</th>
+                                    <th>Chirp \(C_h\)</th>
+                                    <th>Order \(m\)</th>
+                                    <th>{{ form1.add_noise }} Add Noise</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ form1.amplitude }}</td>
+                                    <td >\( k =\) {{ form.duration_k }}</td>
+                                    <td>{{ form1.testCarrierFreq }}</td>
+                                    <td>{{ form1.chirp }}</td>
+                                    <td>{{ form1.order }}</td>
+                                    <td>Noise Amplitude \( = A / \)  {{ form1.noise_amplitude }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+        
+                <div class="card shadow-sm mt-4 mb-4">
+                    <div class="card-header fw-bold text-center" >Fiber Properties</div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th colspan="3">Gamma \( \gamma \) (W<sup>-1</sup>.m<sup>-1</sup>)</th>
+                                    <th colspan="3">Beta \( \beta \) (fs<sup>2</sup>.m<sup>-1</sup>)</th>
+                                    <th colspan="3">Alpha \( \alpha \) (dB.m<sup>-1</sup>)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ form3.gamma_a }}</td>
+                                    <td class="e">e</td>
+                                    <td >{{ form3.gamma_b }}</td>
+                
+                
+                                    <td>{{ form3.beta2_a }}</td>
+                                    <td class="e">e</td>
+                                    <td >{{ form3.beta2_b }}</td>
+                                    
+                                    <td >{{ form3.alpha_dB_per_m_a }}</td>
+                                    <td class="e">e</td>
+                                    <td >{{ form3.alpha_dB_per_m_b }}</td>
+                                </tr>
+                            </tbody>
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th colspan="3">Length (m)</th>                         
+
+                                    <th colspan="3">{{ form3.length_bool }} Use Characteristic Fiber Length : \( Z \cdot \frac{\pi}{2 \cdot \tau^2 \cdot |\beta|} \)</th>
+                                    <th colspan="3">{{ form3.amplitude_bool }}Use Characteristic Pulse Amplitude: \( A \cdot \left( \frac{|\beta|}{\gamma \cdot \tau^2} \right)^{1/2} \)</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td >{{ form3.Length_a }}</td>
+                                    <td class="e">e</td>
+                                    <td >{{ form3.Length_b }}</td>
+
+                                    <td colspan="3">\(Z =\) {{ form3.length_charac }}</td>
+                                    <td colspan="3">\( A =\) {{ form3.amplitude_charac }}</td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-semibold py-2" id="submitBtn">Submit</button>
+                <div id="loadingIndicator" class="d-none text-center my-2">
+                    <div class="spinner-border custom-spinner" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+        </form>
+    
+        
+        <div id="resultsSection" class="position-relative">
+
+             
+            {% include "NLSE/partials/home_results.html" %}
+
+        </div>
+        
+        <style>
+            .custom-spinner {
+                color: #80d0c7 !important;
+                width: 2rem;
+                height: 2rem;
+                }
+        </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const submitBtn = document.getElementById("submitBtn");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+
+            // When the form is submitted
+            document.getElementById("searchForm").addEventListener("submit", function () {
+                submitBtn.classList.add("d-none");      // hide the button
+                loadingIndicator.classList.remove("d-none");  // show the spinner
+            });
+
+            // If you're using HTMX — reset when request completes
+            document.body.addEventListener("htmx:afterRequest", function () {
+                submitBtn.classList.remove("d-none");   // show button again
+                loadingIndicator.classList.add("d-none"); // hide spinner
+            });
+            });
+        </script>
+
+<style>
+    .title {
+        font-size: 20px;
+        font-weight: bold;
+        color: rgb(0, 0, 0);
+        text-decoration: none;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        text-align: center;
+        background-color: #dddcdc;
+
+    }
+
+
+    .e {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        width: 40px;
+        height: 30px;
+        background-color: #ccc;
+        border: 1px solid #999;
+        cursor: pointer;
+    }
+    .e:hover {
+        background-color: #999;
+        color: white;
+    }
+
+    #add-to-cart-button {
+        background-color: rgb(208, 208, 208); 
+        color: rgb(0, 0, 0); 
+        height: 50px;
+        width: 30%;
+        margin-bottom: 5px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    #add-to-cart-button:hover {
+        background-color: rgb(79, 79, 79); 
+        color: white; 
+    }
+    #plots {
+        background-color: rgb(208, 208, 208); 
+        color: rgb(0, 0, 0); 
+        height: 50px;
+        width: 100%;
+        margin-bottom: 10px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    #plots:hover {
+        background-color: rgb(79, 79, 79); 
+        color: white; 
+    }
+    .main-title{
+        font-size: 22px;
+        font-weight: bold;
+        color: rgb(0, 0, 0);
+        text-decoration: none;
+        margin-top: 10px;
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% load static %}
+{% if animation %}
+
+    <div class="table-container mt-5" style="width: 100%;">
+        <div class="table-wrapper">
+            <table class="table">
+                <tr>
+                    <th>&nbsp;</th>
+                    {% for state in states %}
+                        <th >{{ state.polarization }}</th>
+                    {% endfor %}
+                </tr>
+                <tr style="height: 155px;">
+                    <th >Animation</th>
+                    {% for state in states %}
+                        <td><img src="{% static 'polarization/' %}{{ state.animation }}" style="height: 150px;" alt="State Animation"></td>
+                    {% endfor %}
+
+                </tr>
+                <tr>
+                    <th>Stokes Vector</th>
+                    {% for state in states %}
+                        <td>{{ state.stokes_vector }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Intensity</th>
+                    {% for state in states %}
+                        <td>{{ state.intensity }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Degree of Polarization</th>
+                    {% for state in states %}
+                        <td>{{ state.degree_of_polarization }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Ellipse Azimuth in degrees</th>
+                    {% for state in states %}
+                        <td>{{ state.ellipse_orientation }}°</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Ellipse Elliptic Angle in degrees</th>
+                    {% for state in states %}
+                        <td>{{ state.ellipse_ellipticity }}°</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Ellipse Axes</th>
+                    {% for state in states %}
+                        <td>{{ state.ellipse_axes }}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <h2 align='center'>Stokes Vectors on Poincaré Sphere</h2>
+    <div  id="plotContainer">
+        {{ plot_html|safe }}
+    </div>
+    {% endif %}

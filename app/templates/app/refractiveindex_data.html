@@ -1,0 +1,40 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+
+<div class="page-title accent-background">
+    <div class="container">
+      <h1>Refractiveindex Data</h1>
+      
+    </div>
+</div>
+<section id="starter-section" class="starter-section section">
+    <div class="container">
+        <p class="source-info">Data is taken from <a href="https://refractiveindex.info/" target="_blank">refractiveindex.info</a></p>
+
+        {% for category, materials in categories_and_materials.items %}
+            <div class="category-section">
+                <h3>{{ category }}</h3>
+                <ul>
+                    {% for material, nk_files in materials.items %}
+                        <li>
+                            <strong>{{ material }}</strong>
+                            <ul>
+                                {% for file in nk_files %}
+                                    <li>
+                                        <a href="{{ base_url }}/{{ category }}/{{ material }}/nk/{{ file }}" download>
+                                            {{ file }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+{% endblock %}

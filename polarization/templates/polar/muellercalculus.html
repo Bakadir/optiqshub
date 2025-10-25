@@ -1,0 +1,442 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+<title>{% block title %}Mueller Calculus{% endblock %}</title>
+
+
+    {% load static %}
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script>
+    // Add CSRF token to all HTMX requests
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+</script>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+      
+
+            <form id="searchForm"
+            hx-post="{% url 'polarization:muellercalculus' %}"
+            hx-target="#resultsSection"
+            hx-swap="innerHTML"
+            hx-indicator="#loadingIndicator">
+                {% csrf_token %}
+                <p class="main-title">
+                  
+                        Mueller Calculus
+                </p>
+                <hr>
+                <div class="card shadow-sm mb-4 mt-4">
+                    <div class="card-header fw-bold text-center" >
+                        Input Polarization
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle text-center">
+                            <thead class="table-secondary">
+                            <tr>
+                                <th>
+                                <input type="radio" name="vector_type" value="Unpolarized" checked style="cursor:pointer;">
+                                Unpolarized
+                                </th>
+                                <th>
+                                <input type="radio" name="vector_type" value="Linear Polarization" checked style="cursor:pointer;">
+                                Linear Polarization
+                                </th>
+                                <th>
+                                <input type="radio" name="vector_type" value="Left Circular Polarization" style="cursor:pointer;">
+                                Left Circular
+                                </th>
+                                <th>
+                                <input type="radio" name="vector_type" value="Right Circular Polarization" style="cursor:pointer;">
+                                Right Circular
+                                </th>
+                                <th>
+                                <input type="radio" name="vector_type" value="Elliptical Polarization" style="cursor:pointer;">
+                                Elliptical Polarization
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                        </div>
+
+                        <!-- Unpolarized Section -->
+                        <div class="unpolarized-section p-4" style="display:none;">
+                        <div class="text-center text-muted fst-italic">
+                            
+                        </div>
+                        </div>
+
+                        <!-- Linear Polarization Section -->
+                        <div class="linear-section p-0">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                            <thead class="table-secondary">
+                            <tr><th>Linear Polarization Parameters</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th>Angle (°)</th>
+                            </tr>
+                            <tr>
+                                <td><input type="number" name="angle" value="0"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        </div>
+
+
+                        <!-- Elliptical Polarization Section -->
+                        <div class="elliptical-section p-0" style="display:none;">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                            <thead class="table-secondary">
+                            <tr><th colspan="3">Elliptical Polarization Parameters</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th>Degree of polarization</th>
+                                <th>Azimuth (°)</th>
+                                <th>Elliptic Angle (°)</th>
+                            </tr>
+                            <tr>
+                                <td><input type="number" name="degree_of_polarization" value="0"></td>
+                                <td><input type="number" name="azimuth" value="0"></td>
+                                <td><input type="number" name="elliptic_angle" value="0"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        </div>
+
+                        <!-- Circular Polarization (just a note, no inputs needed) -->
+                        <div class="circular-section p-4" style="display:none;">
+                        <div class="text-center text-muted fst-italic">
+                            
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                    const unpolarizedSection = document.querySelector(".unpolarized-section");
+                    const linearSection = document.querySelector(".linear-section");
+                    const ellipticalSection = document.querySelector(".elliptical-section");
+                    const circularSection = document.querySelector(".circular-section");
+                    const radios = document.querySelectorAll('input[name="vector_type"]');
+
+                    radios.forEach(radio => {
+                        radio.addEventListener("change", () => {
+                        const value = radio.value;
+                        if (value === "Linear Polarization") {
+                            linearSection.style.display = "block";
+                            ellipticalSection.style.display = "none";
+                            circularSection.style.display = "none";
+                            unpolarizedSection.style.display = "none";
+                        } 
+                        else if (value === "Elliptical Polarization") {
+                            linearSection.style.display = "none";
+                            ellipticalSection.style.display = "block";
+                            circularSection.style.display = "none";
+                            unpolarizedSection.style.display = "none";
+                        } 
+                        else if (value === "Unpolarized") {
+                            linearSection.style.display = "none";
+                            ellipticalSection.style.display = "none";
+                            circularSection.style.display = "none";
+                            unpolarizedSection.style.display = "block";
+                        } 
+                        else {
+                            linearSection.style.display = "none";
+                            ellipticalSection.style.display = "none";
+                            circularSection.style.display = "block";
+                            unpolarizedSection.style.display = "none";
+                        }
+                        });
+                    });
+                    });
+                </script>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header fw-bold text-center" >Optical Elements</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle text-center mb-0 table-striped" id="matrixTable">
+                            <thead class="table-secondary">
+                            <tr>
+                                <th style="width:10%;"> </th>
+                                <th style="width:40%;">Optical Element</th>
+                                <th style="width:50%;">Parameters</th>
+                            </tr>
+                            </thead>
+                            <tbody id="matrixTableBody">
+                            <tr>
+                                <th>1</th>
+                                <td>
+                                <select name="matrix_type-1" class="form-select form-select-sm matrix-type">
+                                    <option value="">Select...</option>
+                                    <option value="Linear Polarizer">Linear Polarizer</option>
+                                    <option value="Retarder">Retarder</option>
+                                    <option value="Attenuator">Attenuator</option>
+                                    <option value="Mirror">Mirror</option>
+                                    <option value="Quarter Wave Plate">Quarter Wave Plate</option>
+                                    <option value="Half Wave Plate">Half Wave Plate</option>
+                                    <option value="Fresnel Reflection">Fresnel Reflection</option>
+                                    <option value="Fresnel Transmission">Fresnel Transmission</option>
+                                </select>
+                                </td>
+                                <td>
+                                    <!-- All parameter groups (hidden by default) -->
+                                    <div class="params p-2 text-start" style="display:none;">
+
+                                        <!-- Linear Polarizer -->
+                                        <div class="param-group linear-polarizer" style="display:none;">
+                                        <label class="form-label me-2">Angle (°):</label>
+                                        <input type="number" name="matrix_angle-1" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                        </div>
+
+                                        <!-- Retarder -->
+                                        <div class="param-group retarder" style="display:none;">
+                                        <label class="form-label me-2">Fast Axis (°):</label>
+                                        <input type="number" name="retarder_fast_axis_angle-1" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                        <label class="form-label ms-3 me-2">Retardance (°):</label>
+                                        <input type="number" name="retardance-1" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                        </div>
+
+                                        <!-- Attenuator -->
+                                        <div class="param-group attenuator" style="display:none;">
+                                        <label class="form-label me-2">Optical Density:</label>
+                                        <input type="number" name="optical_density-1" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                        </div>
+
+
+                                        <!-- Wave Plates -->
+                                        <div class="param-group quarter-wave half-wave" style="display:none;">
+                                        <label class="form-label me-2">Fast Axis (°):</label>
+                                        <input type="number" name="fast_axis_angle-1" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                        </div>
+
+                                        <!-- Fresnel -->
+                                        <div class="param-group fresnel" style="display:none;">
+                                        <label class="form-label me-2">n =</label>
+                                        <input type="number" step="0.01" name="re_index_of_refraction-1" class="form-control form-control-sm d-inline-block" style="width:80px;" value="1">
+                                        <strong>+</strong>
+                                        <strong>j</strong>
+                                        <input type="number" step="0.01" name="im_index_of_refraction-1" class="form-control form-control-sm d-inline-block" style="width:80px;" value="0">
+                                        <label class="form-label ms-3 me-2">Incidence (°):</label>
+                                        <input type="number" name="incidence_angle-1" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                        </div>
+
+                        <div class="text-center my-2">
+                        <button type="button" id="removeMatrixRow" class="btn btn-outline-danger btn-sm me-2">−</button>
+                        <button type="button" id="addMatrixRow" class="btn btn-outline-success btn-sm">＋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                    const tableBody = document.getElementById("matrixTableBody");
+                    const addBtn = document.getElementById("addMatrixRow");
+                    const removeBtn = document.getElementById("removeMatrixRow");
+                    let rowCount = document.querySelectorAll(".matrix-type").length;
+
+                    // Show proper parameter group when type changes
+                    function setupTypeHandlers() {
+                        document.querySelectorAll(".matrix-type").forEach(select => {
+                            select.addEventListener("change", () => {
+                                const paramsRow = select.closest("tr").querySelector(".params");
+                                const value = select.value;
+
+                                paramsRow.style.display = value ? "block" : "none";
+
+                                // hide all groups first
+                                paramsRow.querySelectorAll(".param-group").forEach(g => g.style.display = "none");
+
+                                // show specific group based on value
+                                if (value === "Linear Polarizer") paramsRow.querySelector(".linear-polarizer").style.display = "block";
+                                else if (value === "Retarder") paramsRow.querySelector(".retarder").style.display = "block";
+                                else if (value === "Attenuator") paramsRow.querySelector(".attenuator").style.display = "block";
+                                else if (value === "Quarter Wave Plate") paramsRow.querySelector(".quarter-wave").style.display = "block";
+                                else if (value === "Half Wave Plate") paramsRow.querySelector(".half-wave").style.display = "block";
+                                else if (value === "Fresnel Reflection" || value === "Fresnel Transmission")
+                                paramsRow.querySelector(".fresnel").style.display = "block";
+                            });
+                        });
+                    }
+
+                    setupTypeHandlers();
+
+                    // Add a new optical element
+                    addBtn.addEventListener("click", () => {
+                        rowCount++;
+                        const newRows = `
+                        <tr>
+                            <th>${rowCount}</th>
+                            <td>
+                            <select name="matrix_type-${rowCount}" class="form-select form-select-sm matrix-type">
+                                <option value="">Select...</option>
+                                <option value="Linear Polarizer">Linear Polarizer</option>
+                                <option value="Retarder">Retarder</option>
+                                <option value="Attenuator">Attenuator</option>
+                                <option value="Mirror">Mirror</option>
+                                <option value="Quarter Wave Plate">Quarter Wave Plate</option>
+                                <option value="Half Wave Plate">Half Wave Plate</option>
+                                <option value="Fresnel Reflection">Fresnel Reflection</option>
+                                <option value="Fresnel Transmission">Fresnel Transmission</option>
+                            </select>
+                            </td>
+                            <td>
+                                <div class="params p-2 text-start" style="display:none;">
+                                    <div class="param-group linear-polarizer" style="display:none;">
+                                    <label class="form-label me-2">Angle (°):</label>
+                                    <input type="number" name="matrix_angle-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                    </div>
+                                    <div class="param-group retarder" style="display:none;">
+                                    <label class="form-label me-2">Fast Axis (°):</label>
+                                    <input type="number" name="retarder_fast_axis_angle-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                    <label class="form-label ms-3 me-2">Retardance (°):</label>
+                                    <input type="number" name="retardance-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                    </div>
+                                    <div class="param-group attenuator" style="display:none;">
+                                    <label class="form-label me-2">Optical Density:</label>
+                                    <input type="number" name="optical_density-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                    </div>
+                                
+                                    <div class="param-group quarter-wave half-wave" style="display:none;">
+                                    <label class="form-label me-2">Fast Axis (°):</label>
+                                    <input type="number" name="fast_axis_angle-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                    </div>
+                                    <div class="param-group fresnel" style="display:none;">
+                                    <label class="form-label me-2">n =</label>
+                                    <input type="number" step="0.01" name="re_index_of_refraction-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:80px;" value="1">
+                                    <strong>+</strong>
+                                    <strong>j</strong>
+                                    <input type="number" step="0.01" name="im_index_of_refraction-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:80px;" value="0">
+                                    <label class="form-label ms-3 me-2">Incidence (°):</label>
+                                    <input type="number" name="incidence_angle-${rowCount}" class="form-control form-control-sm d-inline-block" style="width:120px;" value="0">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        `;
+                        tableBody.insertAdjacentHTML("beforeend", newRows);
+                        setupTypeHandlers();
+                    });
+
+                    // Remove last element
+                    removeBtn.addEventListener("click", () => {
+                        const rows = tableBody.querySelectorAll("tr");
+                        if (rows.length > 2) {
+                        rows[rows.length - 1].remove(); // remove params
+                        rows[rows.length - 1].remove(); // remove selector
+                        rowCount--;
+                        }
+                    });
+                    });
+                </script>
+
+                <br><br>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold py-2" id="submitBtn">Submit</button>
+                <div id="loadingIndicator" class="d-none text-center my-2">
+                    <div class="spinner-border custom-spinner" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </form>
+            
+            <div id="resultsSection" class="position-relative">
+                {% include "polar/partials/muellercalculus_results.html" %}
+
+            </div>
+            
+            <style>
+                .custom-spinner {
+                    color: #80d0c7 !important;
+                    width: 2rem;
+                    height: 2rem;
+                    }
+            </style>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                const submitBtn = document.getElementById("submitBtn");
+                const loadingIndicator = document.getElementById("loadingIndicator");
+
+                // When the form is submitted
+                document.getElementById("searchForm").addEventListener("submit", function () {
+                    submitBtn.classList.add("d-none");      // hide the button
+                    loadingIndicator.classList.remove("d-none");  // show the spinner
+                });
+
+                // If you're using HTMX — reset when request completes
+                document.body.addEventListener("htmx:afterRequest", function () {
+                    submitBtn.classList.remove("d-none");   // show button again
+                    loadingIndicator.classList.add("d-none"); // hide spinner
+                });
+                });
+            </script>
+
+  <style>
+  /* Alternate row background (if not using .table-striped) */
+  #matrixTable tbody tr:nth-child(odd) {
+    background-color: #f8f9fa;
+  }
+  #matrixTable tbody tr:nth-child(even) {
+    background-color: #eef0f2;
+  }
+
+  /* Slight hover highlight */
+  #matrixTable tbody tr:hover {
+    background-color: #dfe4ea;
+  }
+
+  /* Fixed column widths */
+  #matrixTable th,
+  #matrixTable td {
+    vertical-align: middle;
+  }
+</style>
+
+    <script>
+document.body.addEventListener('htmx:afterSwap', (e) => {
+  // 1️⃣ Only reload JS if new <script> tags are in the swapped content
+  const newScripts = e.target.querySelectorAll('script');
+  newScripts.forEach(oldScript => {
+    const newScript = document.createElement('script');
+    if (oldScript.src) {
+      // Bust cache for external JS (Plotly or your own static JS)
+      newScript.src = oldScript.src + '?v=' + Date.now();
+    } else {
+      // Re-run inline JS (like Plotly.render)
+      newScript.textContent = oldScript.textContent;
+    }
+    document.body.appendChild(newScript);
+    oldScript.remove();
+  });
+
+  // 2️⃣ Force reload of updated static images (your polarization GIFs)
+  e.target.querySelectorAll('img').forEach(img => {
+    img.src = img.src.split('?')[0] + '?v=' + Date.now();
+  });
+
+  // 3️⃣ (Optional) Reload Plotly plots if they exist
+  if (window.Plotly) {
+    const plots = e.target.querySelectorAll('.js-plotly-plot');
+    plots.forEach(plot => {
+      Plotly.Plots.resize(plot);
+    });
+  }
+});
+</script>
+{% endblock %}
