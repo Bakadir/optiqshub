@@ -270,7 +270,8 @@ def stokes_to_jones(S):
     J = E_0 * np.array([A, complex(U, V) / (2 * A)])
 
     return J
-
+import os
+import shutil
 def jonescalculus(request):
     
     if request.method == 'POST':
@@ -292,6 +293,11 @@ def jonescalculus(request):
             for filename in os.listdir(directory_path):
                 file_path = os.path.join(directory_path, filename)
                 os.unlink(file_path)
+        directory_path_staticfiles = "staticfiles/polarization/"
+        if os.path.exists(directory_path_staticfiles):
+            for filename in os.listdir(directory_path_staticfiles):
+                file_path = os.path.join(directory_path_staticfiles, filename)
+                os.unlink(file_path)
 
         input_filename = 'static/polarization/0_jones_animation.gif'
         fig, ax = plt.subplots(figsize=(8, 8))
@@ -301,6 +307,10 @@ def jonescalculus(request):
                                     fargs=(jones_vector, ax))
         ani.save(input_filename, writer=PillowWriter(fps=30))
         plt.close()
+
+        output_filename = os.path.join(directory_path_staticfiles, '0_jones_animation.gif')
+        shutil.copy2(input_filename, output_filename)
+
         animation = True
         J1 = jones_vector
         input_polarization = f"input : {vector_type}"
@@ -348,6 +358,11 @@ def jonescalculus(request):
                                         fargs=(output_jones_vector, ax))
             ani.save(filename, writer=PillowWriter(fps=30))
             plt.close()
+
+            output_filename = os.path.join(directory_path_staticfiles, f'{num}_jones_animation.gif')
+            shutil.copy2(output_jones_vector, output_filename)
+
+
             after_optical_element = f"after {matrix_type}"
             if matrix_type == 'Linear Polarizer':
                 after_optical_element = f"after {matrix_type} at {request.POST.get(f'matrix_angle-{i}', 0)}°"

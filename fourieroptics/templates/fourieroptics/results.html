@@ -1,0 +1,207 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+
+ 
+<title>{% block title %}Fourier optics{% endblock %}</title>
+<p class="main-title mb-3">Simulating Diffraction Patterns with the Angular Spectrum Method</p>
+<div class="row g-4 mb-3 mt-3">
+    <div class="col-lg-4">
+
+        <!-- Light Source -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header fw-bold text-center" >Light Source</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle text-center" id="lightTable">
+                    <thead class="table-secondary">
+                    <tr><th>Wavelength (nm)</th><th>Intensity</th></tr>
+                    </thead>
+                    <tbody id="lightTableBody">
+                    <tr>
+                        <td><input type="number" name="wavelength-1" class="form-control" value="400"></td>
+                        <td><input type="number" name="intensity-1" class="form-control" value="1.0"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+                <div class="text-center">
+                <button type="button" id="removeRow" class="btn btn-outline-danger btn-sm me-2">−</button>
+                <button type="button" id="addRow" class="btn btn-outline-success btn-sm">＋</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-lg-8">
+        <div class="row g-4 mb-3">
+            <div class="col-lg-12">
+            <!-- Aperture Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header fw-bold text-center" >
+                    Aperture Type
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle text-center" id="lightTable">
+                            <thead class="table-secondary">
+                            <tr><th ><input type="radio" name="aperture_type" value="N-Slit" style="cursor:pointer;" checked >
+                        N-Slit</th>
+                                <th><input type="radio" name="aperture_type" value="Circular" style="cursor:pointer;">
+                        Circular</th></tr>
+                            </thead>
+                            
+                        </table>
+                    </div>
+                    
+                    <!-- N-Slit table -->
+                    <div class=" nslit-section">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                        <thead class="table-secondary">
+                            <tr><th colspan="4">N-Slit Parameters</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <th>Number of Slits</th>
+                            <th>Distance Between (mm)</th>
+                            <th>Width (mm)</th>
+                            <th>Height (mm)</th>
+                            
+                            </tr>
+                            <tr>
+                            <td>{{ form.number_of_slits }}</td>
+                            <td>{{ form.distance_between_slits }}</td>
+                            <td>{{ form.slit_width }}</td>
+                            <td>{{ form.slit_height }}</td>
+                            
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Circular table -->
+                    <div class=" circular-section" style="display:none;">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                        <thead class="table-secondary"><tr><th>Circular Aperture</th></tr></thead>
+                        <tbody>
+                            <tr><th>Aperture Radius (mm)</th></tr>
+                            <tr><td>{{ form.aperture_radius }}</td></tr>
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                const nslitSection = document.querySelector(".nslit-section");
+                const circularSection = document.querySelector(".circular-section");
+                const radios = document.querySelectorAll('input[name="aperture_type"]');
+
+                radios.forEach(radio => {
+                    radio.addEventListener("change", () => {
+                    if (radio.value === "N-Slit") {
+                        nslitSection.style.display = "block";
+                        circularSection.style.display = "none";
+                    } else {
+                        nslitSection.style.display = "none";
+                        circularSection.style.display = "block";
+                    }
+                    });
+                });
+                });
+            </script>
+            </div>
+        </div>
+        <!-- Screen + Parameters -->
+        <div class="row g-4 mb-3">
+        
+            <div class="col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold text-center" >Screen</div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-bordered text-center align-middle mb-0">
+                        <thead class="table-secondary">
+                            <tr><th>Distance (cm)</th><th>Width (mm)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>{{ form.distance_screen_to_aperture }}</td>
+                            <td>{{ form.screen_width }}</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card shadow-sm">
+                <div class="card-header fw-bold text-center" >Parameters</div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-bordered text-center align-middle mb-0">
+                    <thead class="table-secondary">
+                        <tr><th>Resolution</th><th>Frames</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>{{ form.resolution }}</td>
+                        <td>{{ form.animation_frames }}</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
+    <div class="col-lg-6 mb-4">
+        <div id="rgb-plot"></div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div id="heatmap-plot"></div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div id="3d-plot"></div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div id="lines-plot"></div>
+    </div>
+</div> 
+
+<script>
+    // 1. RGB Plot
+    var rgb_plot_data = {{ anim_rgb_plot_data|safe }};
+    Plotly.newPlot('rgb-plot', rgb_plot_data.data, rgb_plot_data.layout).then(function() {
+        Plotly.addFrames('rgb-plot', rgb_plot_data.frames);
+    });
+
+    // 2. Heatmap Plot
+    var heatmap_plot_data = {{ anim_heatmap_plot_data|safe }}; // Changed variable name
+    Plotly.newPlot('heatmap-plot', heatmap_plot_data.data, heatmap_plot_data.layout).then(function() {
+        Plotly.addFrames('heatmap-plot', heatmap_plot_data.frames);
+    });
+
+    // 3. 3D Plot
+    var three_d_plot_data = {{ anim_3d_plot_data|safe }}; // Changed variable name
+    Plotly.newPlot('3d-plot', three_d_plot_data.data, three_d_plot_data.layout).then(function() {
+        Plotly.addFrames('3d-plot', three_d_plot_data.frames);
+    });
+
+    // 4. Lines Plot
+    var lines_plot_data = {{ anim_lines_plot_data|safe }}; // Changed variable name
+    Plotly.newPlot('lines-plot', lines_plot_data.data, lines_plot_data.layout).then(function() {
+        Plotly.addFrames('lines-plot', lines_plot_data.frames);
+    });
+</script>
+
+{% endblock %}

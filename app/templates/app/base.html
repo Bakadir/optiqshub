@@ -90,7 +90,7 @@
         /* Style for sidebar links/buttons on light background */
         .sidebar-link {
             display: block;
-            padding: 0.75rem 1rem;
+            padding: 0.5rem 0.75rem;
             color: #495057; /* Darker text for white/light gray background */
             text-decoration: none;
             transition: all 0.3s;
@@ -143,82 +143,32 @@
                 </a>
             </div>
 
-            <!-- Sidebar Navigation Menu (Content Pushed to Top) -->
-            <nav class="list-group list-group-flush p-3 flex-grow-1" style="overflow-y : auto; height: calc(100vh - 180px);">
-                
-                <!-- Menu Item: Fourier Optics (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#menuFourier" role="button" aria-expanded="false" aria-controls="menuFourier">
-                        <span>Fourier Optics</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="menuFourier">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'fourieroptics:home' %}" class="sidebar-link">Diffraction Patterns with the Angular Spectrum Method</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Menu Item: Thin Film (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#menuThinFilm" role="button" aria-expanded="false" aria-controls="menuThinFilm">
-                        <span>Thin Film</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="menuThinFilm">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'thinfilms:home' %}" class="sidebar-link">The Transfer-Matrix Method</a></li>
-                        </ul>
-                    </div>
-                </div>
+            <!-- Sidebar Navigation Menu -->
+            <nav class="list-group list-group-flush p-3 flex-grow-1" style="overflow-y:auto; height:calc(100vh - 180px);">
 
-                <!-- Menu Item: Pulse Propagation (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#menuPulseProp" role="button" aria-expanded="false" aria-controls="menuPulseProp">
-                        <span>Pulse Propagation</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="menuPulseProp">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'NLSE:home' %}" class="sidebar-link">Through an optical fiber</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Menu Item: Polarization (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#menuPolarization" role="button" aria-expanded="false" aria-controls="menuPolarization">
-                        <span>Polarization</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="menuPolarization">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:jonescalculus' %}" class="sidebar-link">Jones Calculus</a></li>
-                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:muellercalculus' %}" class="sidebar-link">Mueller Calculus</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Menu Item: Interferometers (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#menuInterferometers" role="button" aria-expanded="false" aria-controls="menuInterferometers">
-                        <span>Interferometers</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="menuInterferometers">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:michelson_interferometer' %}" class="sidebar-link">Michelson</a></li>
-                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:fabry_perot_interferometer' %}" class="sidebar-link">Fabry Perot</a></li>
-                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:mach_zehnder_interferometer' %}" class="sidebar-link">Mach Zender</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- Github and Email are moved to .sidebar-bottom -->
+                <!-- Fourier Optics -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Fourier Optics</h6>
+                <a href="{% url 'fourieroptics:home' %}" class="sidebar-link">Diffraction Patterns with the Angular Spectrum Method</a>
+
+                <!-- Thin Film -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Thin Film</h6>
+                <a href="{% url 'thinfilms:home' %}" class="sidebar-link">The Transfer-Matrix Method</a>
+
+                <!-- Pulse Propagation -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Pulse Propagation</h6>
+                <a href="{% url 'NLSE:home' %}" class="sidebar-link">Through an Optical Fiber</a>
+
+                <!-- Polarization -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Polarization</h6>
+                <a href="{% url 'polarization:jonescalculus' %}" class="sidebar-link">Jones Calculus</a>
+                <a href="{% url 'polarization:muellercalculus' %}" class="sidebar-link">Mueller Calculus</a>
+
+                <!-- Interferometers -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Interferometers</h6>
+                <a href="{% url 'interferometers:michelson_interferometer' %}" class="sidebar-link">Michelson</a>
+                <a href="{% url 'interferometers:fabry_perot_interferometer' %}" class="sidebar-link">Fabry-Perot</a>
+                <a href="{% url 'interferometers:mach_zehnder_interferometer' %}" class="sidebar-link">Mach-Zehnder</a>
+
             </nav>
 
             <!-- Github and Email links fixed at the bottom -->
@@ -302,77 +252,29 @@
             <!-- Navigation Menu is copied from the desktop sidebar structure for consistency -->
             <nav class="list-group list-group-flush p-3 flex-grow-1">
                 
-                <!-- Menu Item: Fourier Optics (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#mobileMenuFourier" role="button" aria-expanded="false" aria-controls="mobileMenuFourier">
-                        <span>Fourier Optics</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="mobileMenuFourier">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'fourieroptics:home' %}" class="sidebar-link">Diffraction Patterns with the Angular Spectrum Method</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Menu Item: Thin Film (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#mobileMenuThinFilm" role="button" aria-expanded="false" aria-controls="mobileMenuThinFilm">
-                        <span>Thin Film</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="mobileMenuThinFilm">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'thinfilms:home' %}" class="sidebar-link">The Transfer-Matrix Method</a></li>
-                        </ul>
-                    </div>
-                </div>
+                <!-- Fourier Optics -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Fourier Optics</h6>
+                <a href="{% url 'fourieroptics:home' %}" class="sidebar-link">Diffraction Patterns with the Angular Spectrum Method</a>
 
-                <!-- Menu Item: Pulse Propagation (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#mobileMenuPulseProp" role="button" aria-expanded="false" aria-controls="mobileMenuPulseProp">
-                        <span>Pulse Propagation</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="mobileMenuPulseProp">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'NLSE:home' %}" class="sidebar-link">Through an optical fiber</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Menu Item: Polarization (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#mobileMenuPolarization" role="button" aria-expanded="false" aria-controls="mobileMenuPolarization">
-                        <span>Polarization</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="mobileMenuPolarization">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:jonescalculus' %}" class="sidebar-link">Jones Calculus</a></li>
-                            <li class="sidebar-dropdown-item"><a href="{% url 'polarization:muellercalculus' %}" class="sidebar-link">Mueller Calculus</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- Menu Item: Interferometers (Collapsible) -->
-                <div class="mb-1">
-                    <a class="sidebar-link d-flex justify-content-between align-items-center" 
-                       data-bs-toggle="collapse" href="#mobileMenuInterferometers" role="button" aria-expanded="false" aria-controls="mobileMenuInterferometers">
-                        <span>Interferometers</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="collapse" id="mobileMenuInterferometers">
-                        <ul class="list-unstyled">
-                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:michelson_interferometer' %}" class="sidebar-link">Michelson</a></li>
-                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:fabry_perot_interferometer' %}" class="sidebar-link">Fabry Perot</a></li>
-                            <li class="sidebar-dropdown-item"><a href="{% url 'interferometers:mach_zehnder_interferometer' %}" class="sidebar-link">Mach Zender</a></li>
-                        </ul>
-                    </div>
-                </div>
+                <!-- Thin Film -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Thin Film</h6>
+                <a href="{% url 'thinfilms:home' %}" class="sidebar-link">The Transfer-Matrix Method</a>
+
+                <!-- Pulse Propagation -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Pulse Propagation</h6>
+                <a href="{% url 'NLSE:home' %}" class="sidebar-link">Through an Optical Fiber</a>
+
+                <!-- Polarization -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Polarization</h6>
+                <a href="{% url 'polarization:jonescalculus' %}" class="sidebar-link">Jones Calculus</a>
+                <a href="{% url 'polarization:muellercalculus' %}" class="sidebar-link">Mueller Calculus</a>
+
+                <!-- Interferometers -->
+                <h6 class="text-uppercase fw-bold text-muted mt-3 mb-2">Interferometers</h6>
+                <a href="{% url 'interferometers:michelson_interferometer' %}" class="sidebar-link">Michelson</a>
+                <a href="{% url 'interferometers:fabry_perot_interferometer' %}" class="sidebar-link">Fabry-Perot</a>
+                <a href="{% url 'interferometers:mach_zehnder_interferometer' %}" class="sidebar-link">Mach-Zehnder</a>
+
             </nav>
 
             <!-- Github and Email links fixed at the bottom for mobile -->

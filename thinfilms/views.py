@@ -872,10 +872,16 @@ def calculate_RT(layers, wl_um, polarization_type, incidence_angle):
     Yfs = np.sqrt(eps0 / mu0)
 
     n0 = 1 
-    last_layer_nk = layers[-1][2]  
-    ns_complex = [nk for wl, nk in zip(layers[-1][1], last_layer_nk) if wl == wl_um]
 
-    ns = ns_complex[0]
+    wl_data = np.array(layers[-1][1])
+    nk_data = np.array(layers[-1][2])
+    ns = np.interp(wl_um, wl_data, nk_data)
+
+
+    #last_layer_nk = layers[-1][2]  
+    #ns_complex = [nk for wl, nk in zip(layers[-1][1], last_layer_nk) if wl == wl_um]
+
+    #ns = ns_complex[0]
     #ns_tuple = ns_complex[0]  # This is expected to be a tuple (real, imag)
     #ns = complex(*ns_tuple)
     a0 = incidence_angle

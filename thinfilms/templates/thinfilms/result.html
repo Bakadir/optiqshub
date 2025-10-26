@@ -79,12 +79,12 @@
                             <td colspan="10" style="height: 20px; background-color:#ffffff;"><h1 align="center">{{ multilayer_name }}</h1></td> <!-- Adds space -->
                         </tr>
                         <tr>
-                            <th colspan="5" style="text-align: center;">Common Wavelengths and Corresponding n, k Values </th>
+                            <th colspan="3" style="text-align: center;">Common Wavelengths and Corresponding n, k Values </th>
                             <td>{{ common_wavelengths_all|first  }}</td>
                             <td>{{ common_wavelengths_all|last  }}</td>
                             <td>{{ common_wavelengths_all|length }}</td>
-                            <td style="text-align: center;width: 10%; "><button type="button" class="btn btn-link" onclick="toggleRow('row_all_data')">Show Data</button></td>
-                            <td style="text-align: center;width: 10%;"><a href="{% url 'thinfilms:download_excel_common' %}" target="_blank">Download Excel</a></td>
+                            <td colspan="2" style="text-align: center;width: 10%; "><button type="button" class="btn btn-link" onclick="toggleRow('row_all_data')">Show Data</button></td>
+                            <td  colspan="2" style="text-align: center;width: 10%;"><a href="{% url 'thinfilms:download_excel_common' %}" target="_blank">Download Excel</a></td>
                     
                         </tr>
                         <tr class="hidden-row"></tr>

@@ -74,7 +74,7 @@ def home(request):
     if request.method == "POST":
         form = FourierDiff(request.POST)
         if form.is_valid() :
-            aperture_type = form.cleaned_data['aperture_type'] 
+            
                 
             #wavelengths = [form.cleaned_data['wavelength'] * 1e-9 ]
             #intensities = [int(1.0)]
@@ -110,6 +110,9 @@ def home(request):
             y = np.linspace(-screen_height / 2, screen_height / 2, resolution)
             xv, yv = np.meshgrid(x, y)
 
+
+            aperture_type = form.cleaned_data['aperture_type'] 
+            
             if aperture_type == 'N-Slit':
                 slit_positions = np.linspace(
                     -(number_of_slits - 1) * distance_between_slits / 2,
@@ -367,6 +370,7 @@ def home(request):
                 'anim_lines_plot_data':anim_lines_plot_data,
                 'anim_rgb_plot_data':anim_rgb_plot_data,
                         }
+            
 
     else:
         form = FourierDiff()

@@ -1,28 +1,28 @@
 <div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
                 
-                <div class="col-lg-6 mb-4">
-                    <div id="rgb-plot"></div>
-                    
-                </div>
+    <div class="col-lg-6 mb-4">
+        <div id="rgb-plot"></div>
+        
+    </div>
 
-                <div class="col-lg-6 mb-4">
+    <div class="col-lg-6 mb-4">
 
-                    <div id="heatmap-plot"></div>
-                </div>
+        <div id="heatmap-plot"></div>
+    </div>
 
-                <div class="col-lg-6 mb-4">
-                    <div id="3d-plot"></div>
-           
-                </div>
+    <div class="col-lg-6 mb-4">
+        <div id="3d-plot"></div>
 
-                <div class="col-lg-6 mb-4">
-                    <div id="lines-plot"></div>
-                    
-                </div>
+    </div>
 
-            </div> 
+    <div class="col-lg-6 mb-4">
+        <div id="lines-plot"></div>
+        
+    </div>
 
-            <script>
+</div> 
+
+<script>
     // 1. RGB Plot
     var rgb_plot_data = {{ anim_rgb_plot_data|safe }};
     Plotly.newPlot('rgb-plot', rgb_plot_data.data, rgb_plot_data.layout).then(function() {
