@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-019_j)f!bb%31+==y9dgl-ol#u#yh@w7sjyj^asmiwowp=nesa
 DEBUG = True
 
 ALLOWED_HOSTS = ['*','https://optiqshub.com']
-CSRF_TRUSTED_ORIGINS = ['https://optiqshub.up.railway.app','https://optiqshub.com']
+CSRF_TRUSTED_ORIGINS = ['https://optiqshub.com']
 
 
 # Application definition
@@ -133,6 +133,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 
 # Default primary key field type

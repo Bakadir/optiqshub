@@ -270,8 +270,7 @@ def stokes_to_jones(S):
     J = E_0 * np.array([A, complex(U, V) / (2 * A)])
 
     return J
-import os
-import shutil
+
 def jonescalculus(request):
     
     if request.method == 'POST':
@@ -288,18 +287,13 @@ def jonescalculus(request):
 
         jones_vector = get_jones_vector(vector_type,angle,azimuth,elliptic_angle)
 
-        directory_path = "static/polarization/"
+        directory_path = "media/polarization/"
         if os.path.exists(directory_path):
             for filename in os.listdir(directory_path):
                 file_path = os.path.join(directory_path, filename)
                 os.unlink(file_path)
-        directory_path_staticfiles = "staticfiles/polarization/"
-        if os.path.exists(directory_path_staticfiles):
-            for filename in os.listdir(directory_path_staticfiles):
-                file_path = os.path.join(directory_path_staticfiles, filename)
-                os.unlink(file_path)
 
-        input_filename = 'static/polarization/0_jones_animation.gif'
+        input_filename = 'media/polarization/0_jones_animation.gif'
         fig, ax = plt.subplots(figsize=(8, 8))
 
         ani = matplotlib.animation.FuncAnimation(fig, animation_update,
@@ -307,10 +301,6 @@ def jonescalculus(request):
                                     fargs=(jones_vector, ax))
         ani.save(input_filename, writer=PillowWriter(fps=30))
         plt.close()
-
-        output_filename = os.path.join(directory_path_staticfiles, '0_jones_animation.gif')
-        shutil.copy2(input_filename, output_filename)
-
         animation = True
         J1 = jones_vector
         input_polarization = f"input : {vector_type}"
@@ -350,7 +340,7 @@ def jonescalculus(request):
             jones_matrix = get_jones_matrix(matrix_type,matrix_angle,retarder_fast_axis_angle,fast_axis_angle,retardance,optical_density,index_of_refraction,incidence_angle) #,index_of_refraction,incidence_angle
 
             output_jones_vector = jones_matrix @ output_jones_vector
-            filename =  f'static/polarization/{num}_jones_animation.gif'
+            filename =  f'media/polarization/{num}_jones_animation.gif'
             fig, ax = plt.subplots(figsize=(8, 8))
 
             ani = matplotlib.animation.FuncAnimation(fig, animation_update,
@@ -358,11 +348,6 @@ def jonescalculus(request):
                                         fargs=(output_jones_vector, ax))
             ani.save(filename, writer=PillowWriter(fps=30))
             plt.close()
-
-            output_filename = os.path.join(directory_path_staticfiles, f'{num}_jones_animation.gif')
-            shutil.copy2(output_jones_vector, output_filename)
-
-
             after_optical_element = f"after {matrix_type}"
             if matrix_type == 'Linear Polarizer':
                 after_optical_element = f"after {matrix_type} at {request.POST.get(f'matrix_angle-{i}', 0)}°"
@@ -425,7 +410,7 @@ def jonescalculus(request):
             height=800,
             
         )
-        filename =  f'static/polarization/interactive_poincare_sphere_plot.html'
+        filename =  f'media/polarization/interactive_poincare_sphere_plot.html'
         fig.write_html(filename)
         plot_html = fig.to_html(full_html=False)
 
@@ -445,7 +430,7 @@ def jonescalculus(request):
 def muellercalculus(request):
     if request.method == 'POST':
 
-        directory_path = "static/polarization/"
+        directory_path = "media/polarization/"
         if os.path.exists(directory_path):
             for filename in os.listdir(directory_path):
                 file_path = os.path.join(directory_path, filename)
@@ -468,7 +453,7 @@ def muellercalculus(request):
 
         stokes_vector = get_stokes_vector(vector_type,angle,azimuth,elliptic_angle,dop)
 
-        input_filename = 'static/polarization/input_mueller_animation.gif'
+        input_filename = 'media/polarization/input_mueller_animation.gif'
         input_anim = 'input_mueller_animation.gif'
 
         input_polarization = f"input : {vector_type}"
@@ -530,7 +515,7 @@ def muellercalculus(request):
             stokes_vecs.append(out_stokes_vector)
 
             
-            filename =  f'static/polarization/{num}_mueller_animation.gif'
+            filename =  f'media/polarization/{num}_mueller_animation.gif'
             fig, ax = plt.subplots(figsize=(8, 8))
 
             ani = matplotlib.animation.FuncAnimation(fig, animation_update,
@@ -608,7 +593,7 @@ def muellercalculus(request):
             margin=dict(l=0, r=0, b=0, t=0),
             height=800,
         )
-        filename = f'static/polarization/interactive_poincare_sphere_plot.html'
+        filename = f'media/polarization/interactive_poincare_sphere_plot.html'
         fig.write_html(filename)
         plot_html = fig.to_html(full_html=False)
 
