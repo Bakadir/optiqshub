@@ -4,7 +4,7 @@ from django import forms
 
 
 class SimulationParameters(forms.Form):
-    number_of_points = forms.IntegerField(required=False,initial=10000)
+    number_of_points = forms.IntegerField(required=False,initial=5000, min_value=100, max_value=10000)
     duration_k = forms.FloatField(required=False,initial=2**7)
     time_resolution_1 = forms.FloatField(required=False,initial=0.1)
     
@@ -34,7 +34,7 @@ class FiberParametersForm(forms.Form):
     Length_a = forms.FloatField(required=False,initial=1)
     Length_b = forms.FloatField(required=False,initial=3)
 
-    nsteps = forms.IntegerField(required=False,initial=100)
+    nsteps = forms.IntegerField(required=False,initial=50 , min_value=10, max_value=100)
 
     gamma_a = forms.FloatField(required=False,initial=10)
     gamma_b = forms.FloatField(required=False,initial=-3)

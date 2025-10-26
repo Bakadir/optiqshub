@@ -27,11 +27,11 @@ class FourierDiff(forms.Form):
     #distance_lens_to_aperture = forms.FloatField(required=False,initial=15) 
     #wavelength = forms.FloatField(initial=660.0)
      
-    screen_width = forms.FloatField(required=False,initial=10)  
-    screen_height = forms.FloatField(required=False,initial=10)  
+    screen_width = forms.FloatField(required=False,initial=5)  
+    screen_height = forms.FloatField(required=False,initial=5)  
     distance_screen_to_aperture = forms.FloatField(required=False,initial=30) 
-    resolution = forms.IntegerField(initial=400)
-    animation_frames = forms.IntegerField(initial=10)
+    resolution = forms.IntegerField(initial=200, min_value=100, max_value=250 )
+    animation_frames = forms.IntegerField(initial=10, min_value=2, max_value=20)
     #animation_framerate = forms.IntegerField(initial=10)
 
 """ class WavelengthIntensityForm(forms.Form):
