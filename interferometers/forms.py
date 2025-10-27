@@ -10,19 +10,19 @@ class MichelsonInterferometerForm(forms.Form):
     resolution = forms.IntegerField(initial=512)  # Resolution (N x N)
 
     # Beamsplitter parameters
-    beamsplitter_reflection = forms.FloatField(initial=0.5)  # Reflection coefficient (0-1)
-    laser_to_beamsplitter = forms.FloatField(initial=5)  # Distance (cm)
+    beamsplitter_reflection = forms.FloatField(initial=0.5,widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Reflection coefficient (0-1)
+    laser_to_beamsplitter = forms.FloatField(initial=5,widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Distance (cm)
 
     # Arm lengths (ensure a path difference)
-    arm1_length = forms.FloatField(initial=10.0)  # Arm 1 length (cm)
-    arm2_length = forms.FloatField(initial=10.1)  # Arm 2 length (cm)
+    arm1_length = forms.FloatField(initial=10.0, widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Arm 1 length (cm)
+    arm2_length = forms.FloatField(initial=5, widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Arm 2 length (cm)
 
     # Screen distance
-    beamsplitter_to_screen = forms.FloatField(initial=20)  # Distance (cm)
+    beamsplitter_to_screen = forms.FloatField(initial=20,widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Distance (cm)
 
     # Mirror tilt (non-zero tilt for fringes)
-    tilt_x = forms.FloatField(initial=1.0)  # Tilt in x (mrad)
-    tilt_y = forms.FloatField(initial=0.0)  # Tilt in y (mrad)
+    tilt_x = forms.FloatField(initial=1.0,widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Tilt in x (mrad)
+    tilt_y = forms.FloatField(initial=0.0,widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'}))  # Tilt in y (mrad)
     
 """     # Compensating Plate Parameters
     add_plate=forms.BooleanField(required=False,initial=False)

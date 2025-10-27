@@ -6,41 +6,51 @@
 
 
 <title>{% block title %}Michelson Interferometer{% endblock %}</title>
-
-<form method="post" enctype="multipart/form-data">
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script>
+    // Add CSRF token to all HTMX requests
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+</script>
+<form id="searchForm"
+            hx-post="{% url 'interferometers:michelson_interferometer' %}"
+            hx-target="#resultsSection"
+            hx-swap="innerHTML"
+            hx-indicator="#loadingIndicator">
     {% csrf_token %}
     <p class="main-title">Michelson Interferometer </p>
+   
     <hr>
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-6 ">
 
             <!-- Light Source -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header fw-bold text-center" >Light Source</div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                    <table class="table table-sm table-bordered align-middle text-center" id="lightTable">
+                    <table class="table table-sm table-bordered align-middle text-center mb-0" id="lightTable">
                         <thead class="table-secondary">
-                        <tr><th>Wavelength (nm)</th><th>Intensity</th></tr>
+                            <tr>
+                                <th>Wavelength (nm)</th>
+                                <th>Laser beam radius (mm)</th>
+                            </tr>
                         </thead>
                         <tbody id="lightTableBody">
-                        <tr>
-                            <td><input type="number" name="wavelength-1" class="form-control" value="400"></td>
-                            <td><input type="number" name="intensity-1" class="form-control" value="1.0"></td>
-                        </tr>
+                            <tr>
+                                <td>{{ form.wavelength }}</td>
+                                <td>{{ form.laser_radius }}</td>
+                            </tr>
                         </tbody>
                     </table>
-                    </div>
-                    <div class="text-center">
-                    <button type="button" id="removeRow" class="btn btn-outline-danger btn-sm me-2">−</button>
-                    <button type="button" id="addRow" class="btn btn-outline-success btn-sm">＋</button>
                     </div>
                 </div>
             </div>
 
         </div>
         
-        <div class="col-lg-6">
+        <div class="col-lg-6 ">
             <div class="card shadow-sm">
                 <div class="card-header fw-bold text-center" >Grid Parameters</div>
                 <div class="card-body p-0">
@@ -61,7 +71,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-12">
+        <div class="col-lg-12 mb-4 mt-3">
             <div class="card shadow-sm">
                 <div class="card-header fw-bold text-center" >Arm Parameters</div>
                 <div class="card-body p-0">
@@ -93,89 +103,61 @@
             </div>
         </div>
 
-        <!-- Left Column: Light Source -->
-        <div class="col-lg-6 justify-content-center align-items-center">
-            <div class="title">
-                Light Source
-            </div>
-            <div class="table-wrapper">
-                <table class="table">
-                    <tr>
-                        <th>Wavelength (nm)</th>
-                        <th>Laser beam radius (mm)</th>
-                    </tr>
-                    <tr>
-                        <td>{{ form.wavelength }}</td>
-                        <td>{{ form.laser_radius }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div class="col-lg-6 justify-content-center align-items-center">
-            <div class="title">
-                Grid Parameters
-            </div>
-            <div class="table-wrapper">
-                <table class="table">
-                    <tr>
-                        <th>Grid Size (mm)</th>
-                        <th>Grid Resolution</th>
-                    </tr>
-                    <tr>
-                        <td>{{ form.grid_size }}</td>
-                        <td>{{ form.resolution }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+    </div>
 
+   
+
+    <button type="submit" class="btn btn-primary w-100 fw-semibold py-2" id="submitBtn">Submit</button>
+    <div id="loadingIndicator" class="d-none text-center my-2">
+        <div class="spinner-border custom-spinner" role="status">
+        <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</form>
+    
         
+        <div id="resultsSection" class="position-relative">
 
-        <!-- Right Column: Arm and Distance Parameters -->
-        <div class="col-lg-12 justify-content-center align-items-center">
-            <div class="title">
-                Arm Parameters
-            </div>
-            <div class="table-wrapper">
-                <table class="table">
-                    <tr>
-                        <th>OM<sub>1</sub> (cm)</th>
-                        <th>OM<sub>2</sub> (cm)</th>
-                        <th>OS<sub>source</sub> (cm)</th>
-                        <th>OS<sub>screen</sub> (cm)</th>
-                        <th>M<sub>1</sub> Tilt x (mrad)</th>
-                        <th>M<sub>1</sub> Tilt y (mrad)</th>
-                        <th>Beamsplitter Reflection</th>
-                    </tr>
-                    <tr>
-                        <td>{{ form.arm1_length }}</td>
-                        <td>{{ form.arm2_length }}</td>
-                        <td>{{ form.laser_to_beamsplitter }}</td>
-                        <td>{{ form.beamsplitter_to_screen }}</td>
-                        <td>{{ form.tilt_x }}</td>
-                        <td>{{ form.tilt_y }}</td>
-                        <td>{{ form.beamsplitter_reflection }}</td>
-                    </tr>
-                </table>
-            </div>
+             
+            {% include "interferometers/partials/michelson_results.html" %}
+
         </div>
-    </div>
-
-    <!-- Submit Button -->
-    <div style="text-align: center; margin-top: 20px;">
-        <button type="submit" class="btn btn-primary w-100">Submit</button>
-    </div>
-
-    <div id="heatmap-plot"></div>
+        
+        <style>
+            .custom-spinner {
+                color: #80d0c7 !important;
+                width: 2rem;
+                height: 2rem;
+                }
+        </style>
         <script>
-            var plot_data = {{ plot_data|safe }};
-            Plotly.newPlot('heatmap-plot', plot_data.data, plot_data.layout).then(function() {
-                Plotly.addFrames('heatmap-plot', plot_data.frames);
+            document.addEventListener("DOMContentLoaded", function () {
+            const submitBtn = document.getElementById("submitBtn");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+
+            // When the form is submitted
+            document.getElementById("searchForm").addEventListener("submit", function () {
+                submitBtn.classList.add("d-none");      // hide the button
+                loadingIndicator.classList.remove("d-none");  // show the spinner
+            });
+
+            // If you're using HTMX — reset when request completes
+            document.body.addEventListener("htmx:afterRequest", function () {
+                submitBtn.classList.remove("d-none");   // show button again
+                loadingIndicator.classList.add("d-none"); // hide spinner
+            });
             });
         </script>
-
-</form>
-  
+<style>
+    .table input.form-control {
+        margin: 0 auto;           /* Center horizontally */
+        display: block;           /* Needed for margin auto to work */
+        text-align: center;       /* Center the text inside */
+        width: 100px;              /* Or smaller if you like */
+        padding: 0.15rem 0.25rem; /* Tight padding for compact style */
+        font-size: 0.8rem;
+    }
+</style>
 
 
 
